@@ -1,0 +1,17 @@
+# Dependências do Node.js
+node_modules/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Arquivos de Banco de Dados
+# (Não queremos que o banco de dados de produção seja sobrescrito pelo de desenvolvimento)
+*.db
+*.sqlite
+*.sqlite3
+
+# Arquivos de sistema
+.DS_Store
+Thumbs.db

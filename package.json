@@ -1,9 +1,13 @@
 {
-  "name": "autoguincho-api",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "name": "autoguincho",
+  "version": "0.2.0",
+  "description": "Plataforma de diretório de guinchos.",
+  "main": "server.js",
   "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "db:setup": "node database/setup-db.js",
+    "db:populate": "node scripts/populate-geo-db.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -12,7 +16,7 @@
   "dependencies": {
     "cors": "^2.8.5",
     "ejs": "^3.1.10",
-    "express": "^5.1.0",
+    "express": "^4.19.2",
     "sqlite": "^5.1.1",
     "sqlite3": "^5.1.7"
   }
