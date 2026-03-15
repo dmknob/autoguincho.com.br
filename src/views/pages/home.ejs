@@ -1,0 +1,92 @@
+<%- include('../partials/head') %>
+<%- include('../partials/header') %>
+
+<main class="flex-grow flex flex-col items-center justify-center p-6 text-center bg-gradient-to-b from-[#0a1628] to-[#050b14]">
+    <div class="max-w-3xl w-full">
+        <h1 class="text-4xl md:text-6xl font-extrabold font-display text-ivory tracking-tight mb-6 mt-10">
+            O Seu Socorro <br class="hidden md:block"/><span class="text-gold">A Um Clique.</span>
+        </h1>
+        <p class="text-lg md:text-xl text-slate-300 mb-10 max-w-2xl mx-auto font-serif tracking-wide">
+            Encontre guinchos, muncks e mecânica rápida perto de você. Sem intermediários ou taxas abusivas. Fale direto com o motorista.
+        </p>
+        
+        <div class="bg-steel p-4 md:p-6 rounded-2xl shadow-xl border border-slate-custom flex flex-col md:flex-row gap-4">
+            
+            <button id="btn-gps" class="flex items-center justify-center gap-2 bg-gold hover:bg-[#b0923d] text-navy px-6 py-4 rounded-xl font-bold transition-all w-full md:w-1/2 group">
+                <svg class="w-6 h-6 group-hover:animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                Usar Minha Localização
+            </button>
+
+            <div class="relative w-full md:w-1/2 flex items-center">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="h-5 w-5 text-slate-400" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <input type="text" id="city-search" class="block w-full pl-10 pr-14 py-4 border border-slate-custom rounded-xl leading-5 bg-navy text-ivory placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-gold focus:border-gold sm:text-sm transition-colors" placeholder="Ou digite sua cidade ex: Canoas..." />
+                <button id="btn-search" class="absolute inset-y-2 right-2 flex items-center justify-center bg-steel hover:bg-slate-custom text-gold px-3 rounded-lg transition-colors cursor-pointer ring-1 ring-slate-custom">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                </button>
+            </div>
+
+        </div>
+        <p id="geo-status" class="mt-4 text-sm text-zinc-500 hidden"></p>
+    </div>
+</main>
+
+<script>
+    function executeCitySearch() {
+        const query = document.getElementById('city-search').value.trim().toLowerCase();
+        if (query) {
+            // Normalize string for basic URL slug matching
+            const slug = query.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '-');
+            // Hardcoding UF 'rs' for V1 MVP fallback
+            window.location.href = `/rs/${slug}`;
+        }
+    }
+
+    document.getElementById('city-search').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            executeCitySearch();
+        }
+    });
+
+    document.getElementById('btn-search').addEventListener('click', function(e) {
+        e.preventDefault();
+        executeCitySearch();
+    });
+
+    document.getElementById('btn-gps').addEventListener('click', () => {
+        const status = document.getElementById('geo-status');
+        status.textContent = 'Buscando sua localização...';
+        status.classList.remove('hidden', 'text-red-500');
+        status.classList.add('text-slate-500');
+
+        if (!navigator.geolocation) {
+            status.textContent = 'Geolocalização não é suportada no seu navegador.';
+            status.classList.add('text-red-500');
+            return;
+        }
+
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const lat = position.coords.latitude;
+                const lon = position.coords.longitude;
+                // Temporariamente, para a POC V1, redireciona estaticamente para um fallback de teste ou usa uma API revese-geocoding (fictício aqui).
+                // Em produção real integraria chamadas fetch para `/api/cities/nearest?lat=${lat}&lon=${lon}`
+                
+                status.textContent = 'Localização encontrada! Direcionando...';
+                
+                // MOCK PARA V1: Direciona para novo hamburgo
+                window.location.href = `/rs/novo-hamburgo?lat=${lat}&lon=${lon}`;
+            },
+            () => {
+                status.textContent = 'Acesso à localização negado. Por favor, digite a cidade ao lado.';
+                status.classList.add('text-red-500');
+            }
+        );
+    });
+</script>
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,18 @@
+{
+  "name": "Auto Guincho",
+  "short_name": "Guincho",
+  "description": "Encontre socorro automotivo e guincho rapidamente na sua região.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a1628",
+  "theme_color": "#0a1628",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "192x192 512x512",
+      "purpose": "any maskable"
+    }
+  ]
+}

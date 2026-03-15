@@ -1,0 +1,59 @@
+<%- include('../partials/head') %>
+<%- include('../partials/header') %>
+
+<main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex-grow prose prose-invert prose-zinc max-w-none">
+    <h1>POLÍTICA DE PRIVACIDADE — <%= locals.NOME_PROJETO %></h1>
+    <p>Última atualização: Março 2026</p>
+
+    <h2>1. IDENTIFICAÇÃO DO CONTROLADOR</h2>
+    <p><%= locals.NOME_EMPRESA %> e Autoguincho.com.br</p>
+    
+    <h2>2. DADOS COLETADOS E FINALIDADE DO TRATAMENTO</h2>
+    <p>
+      - Dados de navegação anonimizados: páginas visitadas, data/hora de acesso, cidade e estado estimados via geolocalização de IP.<br/>
+      - IP: processado apenas para geolocalização, armazenado apenas como hash criptográfico irreversível (SHA-256). O IP original não é retido.<br/>
+      Estes dados servem para fornecer relatórios analíticos anônimos para a manutenção dos nossos serviços e contabilidade de engajamento dos parceiros.
+    </p>
+
+    <h2>3. BASE LEGAL</h2>
+    <p>Legítimo interesse do controlador (LGPD Art. 7, IX) para melhoria e monitoramento do serviço prestado aos nossos parceiros automotivos.</p>
+
+    <h2>4. COOKIES</h2>
+    <p>
+        Este site utiliza apenas cookies estritamente necessários (funcionais). Não utilizamos cookies de rastreamento, publicidade ou de terceiros (Analytics externo), motivo pelo qual prescindimos da exigência de um Banner de Consentimento Expresso inicial para uso analítico.
+    </p>
+
+    <h2>5. ANALYTICS E DADOS DE NAVEGAÇÃO</h2>
+    <p>
+        Utilizamos um sistema de analytics próprio e servidor interno que coleta dados de engajamento totalmente anonimizados (páginas visitadas, cidade/estado/país estimados). <b>Nenhum dado pessoal identificável</b> do indivíduo navegador é armazenado ou compartilhado com terceiros.
+    </p>
+
+    <h2>6. COMPARTILHAMENTO COM TERCEIROS e PERÍODO DE RETENÇÃO</h2>
+    <p>Não compartilhamos dados pessoais com terceiros em nenhuma hipótese. Os registros hash anonimizados são rotacionados periodicamente, mantidos apenas pelo período útil para os relatórios.</p>
+
+    <h2>7. SEUS DIREITOS (LGPD Art. 18)</h2>
+    <p>
+        Você tem direito de:<br>
+        - Confirmar a existência de tratamento de dados<br>
+        - Acessar seus dados pessoais<br>
+        - Solicitar anonimização, bloqueio ou eliminação de dados desnecessários<br>
+        <br>
+        Haja vista nossa arquitetura privacy-by-design a qual realiza hash na própria requisição, não processamos ou retemos informações passíveis de individualização. Mesmo assim, contato pode ser exercido via e-mail oficial disponível.
+    </p>
+    <a href="/" class="text-gold no-underline hover:underline font-bold mt-8 block font-display tracking-widest uppercase">← Voltar para a Página Inicial</a>
+</article>
+</main>
+<style>
+    .prose h2, .prose h3 {
+        color: var(--color-ivory);
+        font-family: var(--font-display);
+    }
+    .prose a {
+        color: var(--color-gold);
+        text-decoration: none;
+    }
+    .prose a:hover {
+        text-decoration: underline;
+    }
+</style>
+<%- include('../partials/footer') %>

@@ -2,18 +2,36 @@
   "name": "autoguincho-api",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "src/server.js",
   "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "dev:css": "npx @tailwindcss/cli -i ./input.css -o ./src/public/css/output.css --watch",
+    "dev:full": "npm run dev:css & npm run dev",
+    "db:setup": "sqlite3 data/autoguincho.db < src/database/schema.sql",
+    "db:populate": "node scripts/seed.js",
+    "build:css": "npx @tailwindcss/cli -i ./input.css -o ./src/public/css/output.css",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "better-sqlite3": "^12.8.0",
     "cors": "^2.8.5",
+    "dotenv": "^17.3.1",
     "ejs": "^3.1.10",
     "express": "^5.1.0",
-    "sqlite": "^5.1.1",
-    "sqlite3": "^5.1.7"
+    "express-rate-limit": "^8.3.1",
+    "fast-geoip": "^1.1.88",
+    "helmet": "^8.1.0",
+    "marked": "^17.0.4"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.2.1",
+    "@tailwindcss/vite": "^4.2.1",
+    "autoprefixer": "^10.4.22",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.2.1"
   }
 }
