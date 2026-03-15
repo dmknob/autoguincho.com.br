@@ -1,7 +1,16 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../models/db');
-const { getCityBySlug, getListingsWithDetailsByCity, getListingBySlug, getActiveCities, getStates, getStateByUf, getCitiesByState } = require('../controllers/listingsController');
+const { 
+    getCityBySlug, 
+    getListingsWithDetailsByCity, 
+    getListingBySlug, 
+    getActiveCities, 
+    getStates, 
+    getStateByUf, 
+    getCitiesByState,
+    getNearestPublishedCity
+} = require('../controllers/listingsController');
 
 // Helper to set Cache-Control as per .env
 const setCacheHeader = (res) => {
@@ -81,6 +90,60 @@ router.get('/quero-ser-parceiro', (req, res) => {
         title: 'Seja Parceiro | Auto Guincho',
         whatsappContact: process.env.WHATSAPP_CONTACT || '5551993668728',
         currentPath: req.originalUrl
+    });
+});
+
+// ==========================================
+// API: Geolocalização Dinâmica
+// ==========================================
+router.get('/api/geolocation/nearest-city', (req, res) => {
+    const lat = parseFloat(req.query.lat);
+    const lon = parseFloat(req.query.lon);
+
+    if (isNaN(lat) || isNaN(lon)) {
+        return res.status(400).json({ success: false, error: 'Coordenadas inválidas' });
+    }
+
+    const nearest = getNearestPublishedCity(lat, lon);
+
+    if (!nearest) {
+        return res.status(404).json({ success: false, error: 'Nenhuma cidade publicada encontrada' });
+    }
+
+    res.json({
+        success: true,
+        city: {
+            name: nearest.name,
+            uf: nearest.uf.toLowerCase(),
+            slug: nearest.slug
+        }
+    });
+});
+
+// ==========================================
+// API: Busca de Cidade (Remover RS Fixo)
+// ==========================================
+router.get('/api/cities/search', (req, res) => {
+    const query = req.query.q;
+    if (!query) return res.status(400).json({ success: false });
+
+    // Busca exata pelo slug por simplicidade no MVP, ou LIKE para nome
+    const city = db.prepare(`
+        SELECT c.*, s.uf 
+        FROM cities c 
+        JOIN states s ON c.state_id = s.id 
+        WHERE c.slug = ? OR c.name LIKE ? 
+        LIMIT 1
+    `).get(query, `%${query}%`);
+
+    if (!city) return res.json({ success: false });
+
+    res.json({
+        success: true,
+        city: {
+            uf: city.uf.toLowerCase(),
+            slug: city.slug
+        }
     });
 });
 

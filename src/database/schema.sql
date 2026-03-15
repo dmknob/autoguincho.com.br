@@ -19,6 +19,8 @@ CREATE TABLE cities (
   state_id INTEGER, 
   name TEXT, 
   slug TEXT, 
+  latitude REAL,
+  longitude REAL,
   has_zones BOOLEAN DEFAULT 0, 
   is_published BOOLEAN DEFAULT 0,
   FOREIGN KEY (state_id) REFERENCES states (id)
@@ -50,6 +52,8 @@ CREATE TABLE listings (
   is_featured BOOLEAN DEFAULT 0,
   is_verified BOOLEAN DEFAULT 0, 
   is_active BOOLEAN DEFAULT 1,
+  latitude REAL,
+  longitude REAL,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );

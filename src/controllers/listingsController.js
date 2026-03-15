@@ -175,6 +175,32 @@ const getCitiesByState = (uf) => {
     `).all(uf.toUpperCase());
 };
 
+const getNearestPublishedCity = (lat, lon) => {
+    const publishedCities = db.prepare(`
+        SELECT c.*, s.uf 
+        FROM cities c 
+        JOIN states s ON c.state_id = s.id 
+        WHERE c.is_published = 1
+    `).all();
+
+    if (publishedCities.length === 0) return null;
+
+    let nearest = null;
+    let minDistance = Infinity;
+
+    for (const city of publishedCities) {
+        if (city.latitude && city.longitude) {
+            const dist = calculateDistance(lat, lon, city.latitude, city.longitude);
+            if (dist < minDistance) {
+                minDistance = dist;
+                nearest = city;
+            }
+        }
+    }
+
+    return nearest;
+};
+
 module.exports = {
     getListingsWithDetailsByCity,
     getCityBySlug,
@@ -182,5 +208,6 @@ module.exports = {
     getActiveCities,
     getStates,
     getStateByUf,
-    getCitiesByState
+    getCitiesByState,
+    getNearestPublishedCity
 };

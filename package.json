@@ -8,7 +8,7 @@
     "dev": "node --watch src/server.js",
     "dev:css": "npx @tailwindcss/cli -i ./input.css -o ./src/public/css/output.css --watch",
     "dev:full": "npm run dev:css & npm run dev",
-    "db:setup": "sqlite3 data/autoguincho.db < src/database/schema.sql",
+    "db:setup": "node scripts/setup-db.js",
     "db:populate": "node scripts/seed.js",
     "build:css": "npx @tailwindcss/cli -i ./input.css -o ./src/public/css/output.css",
     "test": "echo \"Error: no test specified\" && exit 1"

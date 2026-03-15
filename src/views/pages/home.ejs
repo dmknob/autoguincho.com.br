@@ -35,13 +35,29 @@
 </main>
 
 <script>
-    function executeCitySearch() {
+    async function executeCitySearch() {
         const query = document.getElementById('city-search').value.trim().toLowerCase();
         if (query) {
-            // Normalize string for basic URL slug matching
+            const status = document.getElementById('geo-status');
+            status.textContent = 'Buscando...';
+            status.classList.remove('hidden');
+
             const slug = query.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '-');
-            // Hardcoding UF 'rs' for V1 MVP fallback
-            window.location.href = `/rs/${slug}`;
+            
+            try {
+                const response = await fetch(`/api/cities/search?q=${slug}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    window.location.href = `/${data.city.uf}/${data.city.slug}`;
+                } else {
+                    status.textContent = 'Cidade não encontrada em nossa base ativa.';
+                    status.classList.add('text-red-500', 'text-sm');
+                }
+            } catch (err) {
+                console.error('Erro Busca:', err);
+                status.textContent = 'Erro ao realizar busca.';
+            }
         }
     }
 
@@ -76,10 +92,25 @@
                 // Temporariamente, para a POC V1, redireciona estaticamente para um fallback de teste ou usa uma API revese-geocoding (fictício aqui).
                 // Em produção real integraria chamadas fetch para `/api/cities/nearest?lat=${lat}&lon=${lon}`
                 
-                status.textContent = 'Localização encontrada! Direcionando...';
+                status.textContent = 'Localização encontrada! Buscando cidade mais próxima...';
                 
-                // MOCK PARA V1: Direciona para novo hamburgo
-                window.location.href = `/rs/novo-hamburgo?lat=${lat}&lon=${lon}`;
+                // Chamada dinâminca para a API
+                fetch(`/api/geolocation/nearest-city?lat=${lat}&lon=${lon}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            status.textContent = `Encontramos ${data.city.name}! Direcionando...`;
+                            window.location.href = `/${data.city.uf}/${data.city.slug}?lat=${lat}&lon=${lon}`;
+                        } else {
+                            status.textContent = 'Não encontramos guinchos próximos à sua localização exata.';
+                            status.classList.add('text-red-500');
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Erro GPS:', err);
+                        status.textContent = 'Erro ao buscar cidade próxima.';
+                        status.classList.add('text-red-500');
+                    });
             },
             () => {
                 status.textContent = 'Acesso à localização negado. Por favor, digite a cidade ao lado.';

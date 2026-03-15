@@ -13,9 +13,9 @@ function seedDatabase() {
        stateId = db.prepare(`SELECT id FROM states WHERE uf = 'RS'`).get().id;
     }
 
-    // 2. Insert Cities
-    const insertCity = db.prepare(`INSERT OR IGNORE INTO cities (state_id, name, slug, is_published) VALUES (?, ?, ?, 1) RETURNING id`);
-    let cityId = insertCity.get(stateId, 'Novo Hamburgo', 'novo-hamburgo')?.id;
+    // 2. Insert Cities (Novo Hamburgo aprox coords)
+    const insertCity = db.prepare(`INSERT OR IGNORE INTO cities (state_id, name, slug, latitude, longitude, is_published) VALUES (?, ?, ?, ?, ?, 1) RETURNING id`);
+    let cityId = insertCity.get(stateId, 'Novo Hamburgo', 'novo-hamburgo', -29.6914, -51.1253)?.id;
     if (!cityId) {
        cityId = db.prepare(`SELECT id FROM cities WHERE slug = 'novo-hamburgo'`).get().id;
     }
@@ -43,8 +43,8 @@ function seedDatabase() {
     // 4. Insert 2 Mock Partners
     const insertListing = db.prepare(`
       INSERT INTO listings (
-        city_id, company_name, slug, whatsapp_number, phone_number, plan_type, is_featured, is_active
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        city_id, company_name, slug, whatsapp_number, phone_number, plan_type, is_featured, is_active, latitude, longitude
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
     
     const partner1Res = insertListing.run(
@@ -55,7 +55,8 @@ function seedDatabase() {
       '5133333331', 
       'basic', 
       0, 
-      1
+      1,
+      -29.68, -51.13
     );
     const p1Id = partner1Res.lastInsertRowid;
 
@@ -67,7 +68,8 @@ function seedDatabase() {
       '5133333332', 
       'premium', 
       1, /* Featured for heavy logic */
-      1
+      1,
+      -29.7, -51.11
     );
     const p2Id = partner2Res.lastInsertRowid;
 
