@@ -36,6 +36,16 @@
 <!-- Global Scripts (e.g. tracking helper) -->
 <script>
     async function trackClick(type, label, path, entityId = null) {
+        // GA4 Tracking
+        if (typeof gtag === 'function') {
+            gtag('event', type, {
+                'event_category': 'engagement',
+                'event_label': label,
+                'page_path': path,
+                'entity_id': entityId
+            });
+        }
+
         try {
             await fetch('/api/analytics/event', {
                 method: 'POST',

@@ -13,6 +13,7 @@ const PORT = process.env.PORT || 3001;
 // --- EJS Configuration ---
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
+app.locals.gtagId = process.env.GTAG_ID;
 
 // --- Middlewares ---
 // Helmet for basic security headers
