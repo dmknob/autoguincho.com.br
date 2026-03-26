@@ -37,7 +37,8 @@ CREATE TABLE tags (
   id INTEGER PRIMARY KEY AUTOINCREMENT, 
   name TEXT, 
   slug TEXT, 
-  icon_class TEXT
+  description TEXT,
+  icon_svg TEXT
 );
 
 CREATE TABLE listings (
@@ -52,6 +53,7 @@ CREATE TABLE listings (
   is_featured BOOLEAN DEFAULT 0,
   is_verified BOOLEAN DEFAULT 0, 
   is_active BOOLEAN DEFAULT 1,
+  mini_bio TEXT,
   latitude REAL,
   longitude REAL,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
