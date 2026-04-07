@@ -9,7 +9,7 @@
     "dev:css": "npx @tailwindcss/cli -i ./input.css -o ./src/public/css/output.css --watch",
     "dev:full": "npm run dev:css & npm run dev",
     "db:setup": "node scripts/setup-db.js",
-    "db:populate": "node scripts/seed.js",
+    "db:import-locations": "node scripts/import-locations.js",
     "build:css": "npx @tailwindcss/cli -i ./input.css -o ./src/public/css/output.css",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -22,7 +22,9 @@
     "dotenv": "^17.3.1",
     "ejs": "^3.1.10",
     "express": "^5.1.0",
+    "express-ejs-layouts": "^2.5.1",
     "express-rate-limit": "^8.3.1",
+    "express-session": "^1.19.0",
     "fast-geoip": "^1.1.88",
     "helmet": "^8.1.0",
     "marked": "^17.0.4"

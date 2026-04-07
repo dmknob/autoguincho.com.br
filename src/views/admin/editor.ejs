@@ -1,0 +1,100 @@
+<div class="px-4 sm:px-6 lg:px-8 py-8">
+    <div class="md:flex md:items-center md:justify-between">
+      <div class="min-w-0 flex-1">
+        <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
+          <%= typeof partner !== 'undefined' ? 'Editar Parceiro: ' + partner.company_name : 'Cadastrar Novo Parceiro' %>
+        </h2>
+      </div>
+      <div class="mt-4 flex md:ml-4 md:mt-0">
+        <a href="/admin" class="inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">Cancelar</a>
+      </div>
+    </div>
+  
+    <form action="/admin/partner/save" method="POST" class="mt-8 space-y-8 divide-y divide-gray-200">
+      <% if (typeof partner !== 'undefined') { %>
+          <input type="hidden" name="id" value="<%= partner.id %>">
+      <% } %>
+  
+      <!-- Informações Básicas -->
+      <div class="space-y-6 sm:space-y-5">
+        <div>
+          <h3 class="text-base font-semibold leading-6 text-gray-900">Perfil Comercial</h3>
+          <p class="mt-1 max-w-2xl text-sm text-gray-500">A identidade visual no portal baseia-se nesta seção principal.</p>
+        </div>
+  
+        <div class="space-y-6 sm:space-y-5">
+          <div class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:py-6">
+            <label for="company_name" class="block text-sm font-medium leading-6 text-gray-900 sm:pt-1.5">Nome da Empresa</label>
+            <div class="mt-2 sm:col-span-2 sm:mt-0">
+              <input type="text" name="company_name" id="company_name" required value="<%= typeof partner !== 'undefined' ? partner.company_name : '' %>"
+                class="block w-full max-w-lg rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-900 sm:max-w-xs sm:text-sm sm:leading-6 pl-2">
+            </div>
+          </div>
+  
+          <div class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:py-6">
+            <label for="slug" class="block text-sm font-medium leading-6 text-gray-900 sm:pt-1.5">URL de Vaidade (Slug)</label>
+            <div class="mt-2 sm:col-span-2 sm:mt-0">
+              <div class="flex max-w-lg rounded-md shadow-sm">
+                <span class="inline-flex items-center rounded-l-md border border-r-0 border-gray-300 px-3 text-gray-500 sm:text-sm">/perfil/</span>
+                <input type="text" name="slug" id="slug" required value="<%= typeof partner !== 'undefined' ? partner.slug : '' %>"
+                  class="block w-full min-w-0 flex-1 rounded-none rounded-r-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-900 sm:text-sm sm:leading-6 pl-2">
+              </div>
+            </div>
+          </div>
+
+          <div class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:py-6">
+            <label for="whatsapp_number" class="block text-sm font-medium leading-6 text-gray-900 sm:pt-1.5">WhatsApp (DDI+DDD+Numero)</label>
+            <div class="mt-2 sm:col-span-2 sm:mt-0">
+              <input type="text" name="whatsapp_number" id="whatsapp_number" required placeholder="5511999999999" value="<%= typeof partner !== 'undefined' && partner.whatsapp_number ? partner.whatsapp_number : '' %>"
+                class="block w-full max-w-lg rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-900 sm:max-w-xs sm:text-sm sm:leading-6 pl-2">
+            </div>
+          </div>
+  
+          <div class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:py-6 border-t border-gray-200">
+            <label for="plan_level" class="block text-sm font-medium leading-6 text-gray-900 sm:pt-1.5">Nível da Assinatura</label>
+            <div class="mt-2 sm:col-span-2 sm:mt-0">
+              <select id="plan_level" name="plan_level" class="block w-full max-w-lg rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-900 sm:max-w-xs sm:text-sm sm:leading-6">
+                <option value="basic" <%= typeof partner !== 'undefined' && partner.plan_level === 'basic' ? 'selected' : '' %>>Básico (Gratuito)</option>
+                <option value="partner" <%= typeof partner !== 'undefined' && partner.plan_level === 'partner' ? 'selected' : '' %>>Parceiro</option>
+                <option value="elite" <%= typeof partner !== 'undefined' && partner.plan_level === 'elite' ? 'selected' : '' %>>Elite</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+  
+      <!-- Descrição Rica (Markdown) -->
+      <div class="pt-8 space-y-6 sm:space-y-5">
+        <div>
+          <h3 class="text-base font-semibold leading-6 text-gray-900">Conteúdo do Perfil (SEO Massivo)</h3>
+          <p class="mt-1 max-w-2xl text-sm text-gray-500">Crie o texto formatado para ser visualizado pelo usuário e processado pelo Google. Disponível fidedignamente no plano Elite/Parceiro.</p>
+        </div>
+  
+        <div class="mt-2">
+            <!-- Container do EasyMDE -->
+            <textarea id="description_markdown" name="description_markdown" class="invisible">
+                <%= typeof partner !== 'undefined' && partner.description_markdown ? partner.description_markdown : '' %>
+            </textarea>
+        </div>
+      </div>
+  
+      <div class="pt-5">
+        <div class="flex justify-end gap-x-3">
+          <a href="/admin" class="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">Cancelar</a>
+          <button type="submit" class="inline-flex justify-center rounded-md bg-gray-900 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-700">Salvar Dados</button>
+        </div>
+      </div>
+    </form>
+  </div>
+  
+  <script>
+    // Inicialização do Editor Markdown EasyMDE na View
+    document.addEventListener("DOMContentLoaded", function() {
+        const easymde = new EasyMDE({
+            element: document.getElementById('description_markdown'),
+            spellChecker: false,
+            autosave: { enabled: true, uniqueId: "ag_v2_partner_autosave" },
+            toolbar: ["bold", "italic", "heading", "|", "quote", "unordered-list", "ordered-list", "|", "link", "preview", "side-by-side", "fullscreen"]
+        });
+    });
+  </script>

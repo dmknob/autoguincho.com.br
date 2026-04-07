@@ -4,7 +4,7 @@ const path = require('path');
 require('dotenv').config();
 
 async function setupDatabase() {
-  const dbFile = process.env.DB_FILE || 'data/autoguincho.db';
+  const dbFile = process.env.DB_FILE;
   const dbPath = path.isAbsolute(dbFile) ? dbFile : path.join(__dirname, '../', dbFile);
   const schemaPath = path.join(__dirname, '../src/database/schema.sql');
   const dataDir = path.dirname(dbPath);
@@ -20,14 +20,14 @@ async function setupDatabase() {
   // Ler o arquivo SQL
   try {
     const schema = fs.readFileSync(schemaPath, 'utf8');
-    
+
     // Conectar ao banco (cria se não existir)
     const db = new Database(dbPath);
-    
+
     // Executar o schema
     db.exec(schema);
     db.close();
-    
+
     console.log('✅ Banco de dados inicializado com sucesso em data/autoguincho.db');
   } catch (error) {
     console.error('❌ Erro ao configurar o banco de dados:', error.message);
