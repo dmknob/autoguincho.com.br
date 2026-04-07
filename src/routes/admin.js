@@ -13,7 +13,7 @@ router.get('/login', (req, res) => {
 
 router.post('/login', (req, res) => {
     const { password } = req.body;
-    const adminPass = process.env.ADMIN_PASSWORD || '123456'; // Fallback só pra dev
+    const adminPass = process.env.ADMIN_PASSWORD;
 
     if (password === adminPass) {
         req.session.isAdmin = true;
@@ -32,11 +32,11 @@ router.get('/logout', (req, res) => {
 router.get('/', (req, res) => {
     // Buscar todos parceiros
     const listings = db.prepare('SELECT id, company_name, plan_level, last_renewal_date, is_active FROM listings ORDER BY created_at DESC').all();
-    
+
     // Contar cidades sujas para ver no botão de Rebuild
     const dirtyCount = db.prepare('SELECT COUNT(*) as count FROM cities WHERE is_dirty = 1').get().count;
 
-    res.render('admin/dashboard', { 
+    res.render('admin/dashboard', {
         title: 'Dashboard - Auto Guincho',
         listings,
         dirtyCount
@@ -47,7 +47,7 @@ router.get('/', (req, res) => {
 router.post('/action/rebuild', (req, res) => {
     // Dispara script de build
     const scriptPath = path.join(__dirname, '../../scripts/build-ssg.js');
-    
+
     console.log('[Admin] Iniciando Rebuild Manual...');
     exec(`node ${scriptPath}`, (error, stdout, stderr) => {
         if (error) {
@@ -66,17 +66,17 @@ router.get('/partner/new', (req, res) => {
 router.get('/partner/:id', (req, res) => {
     const partnerId = req.params.id;
     const partner = db.prepare('SELECT * FROM listings WHERE id = ?').get(partnerId);
-    
+
     if (!partner) {
         return res.status(404).send('Parceiro não encontrado.');
     }
-    
+
     res.render('admin/editor', { title: 'Editar Parceiro - Auto Guincho', partner: partner });
 });
 
 router.post('/partner/save', (req, res) => {
     const { id, company_name, slug, plan_level, whatsapp_number, description_markdown } = req.body;
-    
+
     // Fallback básico para validação do slug ou formatação
     const safeSlug = slug ? slug.trim().toLowerCase() : company_name.trim().toLowerCase().replace(/\\s+/g, '-');
     const safeWhatsapp = whatsapp_number ? whatsapp_number.replace(/\\D/g, '') : '';
@@ -95,7 +95,7 @@ router.post('/partner/save', (req, res) => {
     // Marca as cidades fictícias (ou vinculadas depois) como_sujas. Exemplo genérico se fossem alteradas todas do parceiro.
     // Como a relação multicity é feita na lista, deixamos anotado aqui o UPDATE genérico:
     // db.prepare('UPDATE cities SET is_dirty = 1 WHERE ibge_id IN (SELECT city_ibge_id FROM listing_service_cities WHERE listing_id = ?)').run(id || last_id);
-    
+
     res.redirect('/admin');
 });
 
