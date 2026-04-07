@@ -15,10 +15,16 @@ router.post('/login', (req, res) => {
     const { password } = req.body;
     const adminPass = process.env.ADMIN_PASSWORD;
 
+    if (!adminPass) {
+        console.error('[Admin] ERRO: ADMIN_PASSWORD não está definido no .env!');
+    }
+
     if (password === adminPass) {
+        console.log('[Admin] Login bem-sucedido.');
         req.session.isAdmin = true;
         res.redirect('/admin');
     } else {
+        console.warn(`[Admin] Falha de login. Tentativa com: "${password ? '********' : 'vazio'}"`);
         res.render('admin/login', { layout: false, error: 'Senha incorreta' });
     }
 });

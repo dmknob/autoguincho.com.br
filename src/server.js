@@ -23,13 +23,15 @@ app.set('trust proxy', 1);
 
 // Sessão Simples
 app.use(session({
-    secret: process.env.SESSION_SECRET || 'secret-admin-auto-guincho',
+    secret: process.env.SESSION_SECRET || 'secret-admin-auto-guincho-v2',
     resave: false,
     saveUninitialized: false,
+    name: 'autoguincho.sid', // Nome customizado para evitar conflitos
     cookie: {
         secure: process.env.NODE_ENV === 'production',
         httpOnly: true,
-        maxAge: 1000 * 60 * 60 * 4 // 4 Horas
+        sameSite: 'lax',
+        maxAge: 1000 * 60 * 60 * 24 // 24 Horas de duração
     }
 }));
 
