@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <%- include('../partials/head') %>
+    
+    <!-- SEO: JSON-LD @graph -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Início", "item": "<%= BASE_URL %>" },
+            { "@type": "ListItem", "position": 2, "name": "<%= category.name %>", "item": "<%= BASE_URL %><%= path %>" }
+          ]
+        }
+      ]
+    }
+    </script>
+</head>
+<body class="bg-navy font-sans text-ivory min-h-screen flex flex-col">
+
+<%- include('../partials/header') %>
+
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 flex-grow w-full">
+    <div class="mb-12 border-b border-gray-800 pb-8 text-center">
+        <h1 class="text-4xl md:text-6xl font-extrabold text-ivory tracking-tight mb-4">
+            Cidades com <span class="text-gold"><%= category.name %></span>
+        </h1>
+        <p class="text-gray-400 text-lg max-w-2xl mx-auto">
+            Encontre os melhores profissionais de <%= category.name %> atendendo em diversas regiões. Selecione sua cidade abaixo.
+        </p>
+    </div>
+
+    <% if (Object.keys(groupedCities).length === 0) { %>
+        <div class="text-center py-20 bg-gray-900 rounded-2xl shadow-lg border border-gray-800">
+            <h3 class="mt-2 text-xl font-medium text-ivory">Nenhuma cidade cadastrada para esta categoria ainda.</h3>
+            <p class="mt-1 text-sm text-gray-400">Estamos trabalhando para expandir nossa rede!</p>
+            <a href="/" class="mt-6 inline-block bg-gold text-black font-bold px-6 py-3 rounded-xl hover:scale-105 transition-transform">Voltar ao início</a>
+        </div>
+    <% } else { %>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <% Object.keys(groupedCities).sort().forEach(state => { %>
+                <div class="bg-gray-900/50 rounded-2xl p-6 border border-gray-800">
+                    <h2 class="text-2xl font-black text-gold mb-4 border-b border-gray-800 pb-2"><%= state %></h2>
+                    <ul class="space-y-2">
+                        <% groupedCities[state].sort((a,b) => a.name.localeCompare(b.name)).forEach(city => { %>
+                            <li>
+                                <a href="/<%= category.slug %>/<%= state.toLowerCase() %>/<%= city.slug %>" class="text-gray-300 hover:text-white hover:translate-x-1 inline-block transition-all">
+                                    <%= city.name %>
+                                </a>
+                            </li>
+                        <% }) %>
+                    </ul>
+                </div>
+            <% }) %>
+        </div>
+    <% } %>
+</main>
+
+<%- include('../partials/footer') %>
+
+</body>
+</html>

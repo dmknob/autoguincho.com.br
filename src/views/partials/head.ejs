@@ -1,0 +1,57 @@
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title><%= locals.title || 'Auto Guincho - Socorro Automotivo' %></title>
+<meta name="description" content="<%= locals.description || 'Encontre guinchos, muncks e mecânica rápida perto de você. Sem intermediários. Fale direto com o motorista.' %>">
+
+<!-- SEO: Canonicals e OG -->
+<% if (locals.BASE_URL) { %>
+<link rel="canonical" href="<%= BASE_URL %><%= locals.path || '' %>">
+<meta property="og:title" content="<%= locals.title || 'Auto Guincho' %>">
+<meta property="og:description" content="<%= locals.description || '' %>">
+<meta property="og:image" content="<%= BASE_URL %>/images/og-default.webp">
+<meta property="og:url" content="<%= BASE_URL %><%= locals.path || '' %>">
+<meta name="twitter:card" content="summary_large_image">
+<% } %>
+
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+    .bg-navy { background-color: #050b14; }
+    .text-gold { color: #d4af37; border-color: #d4af37; }
+    .bg-gold { background-color: #d4af37; }
+    .text-ivory { color: #f8f9fa; }
+    
+    /* Markdown Styles */
+    .markdown-body h1, .markdown-body h2 { font-weight: bold; color: #f8f9fa; margin-top: 1.5rem; margin-bottom: 1rem; border-bottom: 1px solid #1f2937; padding-bottom: 0.5rem; }
+    .markdown-body h1 { font-size: 1.75rem; }
+    .markdown-body h2 { font-size: 1.5rem; }
+    .markdown-body p { margin-bottom: 1rem; line-height: 1.6; }
+    .markdown-body strong { color: #d4af37; }
+</style>
+
+<!-- Delayed Analytics (Padrão Corpo Digital 5s) -->
+<% if (locals.GTAG_ID && GTAG_ID !== 'G-XXXXXXXXXX') { %>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    
+    let gtagLoaded = false;
+    function loadGTM() {
+        if (gtagLoaded) return;
+        gtagLoaded = true;
+        const script = document.createElement('script');
+        script.src = 'https://www.googletagmanager.com/gtag/js?id=<%= GTAG_ID %>';
+        script.async = true;
+        document.head.appendChild(script);
+        gtag('config', '<%= GTAG_ID %>', { page_path: window.location.pathname });
+        ['scroll', 'mousemove', 'touchstart', 'click', 'keydown'].forEach(evt => {
+            window.removeEventListener(evt, loadGTM);
+        });
+    }
+    ['scroll', 'mousemove', 'touchstart', 'click', 'keydown'].forEach(evt => {
+        window.addEventListener(evt, loadGTM, { passive: true, once: true });
+    });
+    setTimeout(loadGTM, 5000);
+</script>
+<% } %>

@@ -1,0 +1,24 @@
+<footer class="py-12 bg-black/50 text-center text-sm text-gray-500 border-t border-gray-800 mt-auto">
+    <div class="max-w-6xl mx-auto px-4">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12 text-left border-b border-gray-800 pb-12">
+            <div class="col-span-2 md:col-span-1">
+                <a href="/" class="text-xl font-black tracking-tighter text-white block mb-4">Auto<span class="text-gold">Guincho</span></a>
+                <p class="text-gray-500 text-xs">O maior ecossistema de socorro automotivo do Brasil. Conectando você direto ao prestador, sem taxas e sem burocracia.</p>
+            </div>
+            <div class="col-span-2 md:col-span-3">
+                <p class="text-[10px] uppercase tracking-widest text-gray-400 font-bold mb-6">Todos os Serviços</p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-2">
+                    <% allCategories.forEach(cat => { %>
+                        <a href="/<%= cat.slug %>" class="text-gray-500 hover:text-gold transition-colors text-xs flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 bg-gray-800 rounded-full group-hover:bg-gold"></span>
+                            <%= cat.name %>
+                        </a>
+                    <% }); %>
+                </div>
+            </div>
+        </div>
+        <p class="mb-2 font-bold uppercase tracking-widest text-gray-700">Diretório Oficial de Profissionais</p>
+        <p>&copy; <%= new Date().getFullYear() %> Auto Guincho. Desenvolvido no ecossistema de performance | Corpo Digital
+        </p>
+    </div>
+</footer>

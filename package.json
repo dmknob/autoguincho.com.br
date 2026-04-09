@@ -7,9 +7,11 @@
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
     "dev:css": "npx @tailwindcss/cli -i ./input.css -o ./src/public/css/output.css --watch",
-    "dev:full": "npm run dev:css & npm run dev",
+    "dev:full": "npm run dev:css & node scripts/build-ssg.js & npm run dev",
+    "build:ssg": "node scripts/build-ssg.js",
     "db:setup": "node scripts/setup-db.js",
     "db:import-locations": "node scripts/import-locations.js",
+    "db:mark-dirty": "sqlite3 data/autoguincho_prod.db 'UPDATE cities SET is_dirty = 1; UPDATE listings SET is_dirty = 1;'",
     "build:css": "npx @tailwindcss/cli -i ./input.css -o ./src/public/css/output.css",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

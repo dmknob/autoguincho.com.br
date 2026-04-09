@@ -1,9 +1,9 @@
-// src/routes/admin.js
 const express = require('express');
 const router = express.Router();
 const db = require('../database');
 const { exec } = require('child_process');
 const path = require('path');
+const plans = require('../config/plans');
 
 // --- LOGIN ---
 router.get('/login', (req, res) => {
@@ -66,7 +66,14 @@ router.post('/action/rebuild', (req, res) => {
 
 // --- EDITOR DE SERVIÇOS (CRUD) ---
 router.get('/partner/new', (req, res) => {
-    res.render('admin/editor', { title: 'Novo Parceiro - Auto Guincho', partner: undefined });
+    const categories = db.prepare('SELECT * FROM categories').all();
+    res.render('admin/editor', { 
+        title: 'Novo Parceiro - Auto Guincho', 
+        partner: undefined,
+        categories,
+        selectedCategoryIds: [],
+        selectedCities: []
+    });
 });
 
 router.get('/partner/:id', (req, res) => {
@@ -77,32 +84,105 @@ router.get('/partner/:id', (req, res) => {
         return res.status(404).send('Parceiro não encontrado.');
     }
 
-    res.render('admin/editor', { title: 'Editar Parceiro - Auto Guincho', partner: partner });
+    const categories = db.prepare('SELECT * FROM categories').all();
+    const selectedCategoryIds = db.prepare('SELECT category_id FROM category_listings WHERE listing_id = ?').all(partnerId).map(c => c.category_id);
+    
+    // Buscar cidades vinculadas
+    const selectedCities = db.prepare(`
+        SELECT c.ibge_id, c.name, c.state_uf 
+        FROM cities c
+        JOIN listing_service_cities lsc ON c.ibge_id = lsc.city_ibge_id
+        WHERE lsc.listing_id = ?
+    `).all(partnerId);
+
+    res.render('admin/editor', { 
+        title: 'Editar Parceiro - Auto Guincho', 
+        partner: partner,
+        categories,
+        selectedCategoryIds,
+        selectedCities
+    });
 });
 
 router.post('/partner/save', (req, res) => {
-    const { id, company_name, slug, plan_level, whatsapp_number, description_markdown } = req.body;
+    const { id, company_name, slug, plan_level, whatsapp_number, call_number, description_markdown, category_ids, city_ids, gallery_images } = req.body;
 
-    // Fallback básico para validação do slug ou formatação
-    const safeSlug = slug ? slug.trim().toLowerCase() : company_name.trim().toLowerCase().replace(/\\s+/g, '-');
-    const safeWhatsapp = whatsapp_number ? whatsapp_number.replace(/\\D/g, '') : '';
+    const safeSlug = slug ? slug.trim().toLowerCase() : company_name.trim().toLowerCase().replace(/\s+/g, '-');
+    const safeWhatsapp = whatsapp_number ? whatsapp_number.replace(/\D/g, '') : '';
+    const safeCallNumber = call_number ? call_number.replace(/\D/g, '') : '';
 
-    if (id) {
-        // Atualiza
-        const stmt = db.prepare('UPDATE listings SET company_name = ?, slug = ?, plan_level = ?, whatsapp_number = ?, description_markdown = ?, is_dirty = 1 WHERE id = ?');
-        stmt.run(company_name, safeSlug, plan_level, safeWhatsapp, description_markdown, id);
-    } else {
-        // Insere
-        const stmt = db.prepare('INSERT INTO listings (company_name, slug, plan_level, whatsapp_number, description_markdown, is_dirty) VALUES (?, ?, ?, ?, ?, 1)');
-        const result = stmt.run(company_name, safeSlug, plan_level, safeWhatsapp, description_markdown);
-        // req.body.id = result.lastInsertRowid;
+    // Enforçar Regras de Plano
+    const planConfig = plans[plan_level] || plans.basic;
+    
+    // Truncar cidades pelo limite do plano
+    let finalCityIds = [];
+    if (city_ids) {
+        const rawIds = Array.isArray(city_ids) ? city_ids : [city_ids];
+        finalCityIds = rawIds.slice(0, planConfig.max_cities);
     }
 
-    // Marca as cidades fictícias (ou vinculadas depois) como_sujas. Exemplo genérico se fossem alteradas todas do parceiro.
-    // Como a relação multicity é feita na lista, deixamos anotado aqui o UPDATE genérico:
-    // db.prepare('UPDATE cities SET is_dirty = 1 WHERE ibge_id IN (SELECT city_ibge_id FROM listing_service_cities WHERE listing_id = ?)').run(id || last_id);
+    // Processar Galeria (Garantir que seja JSON válido e respeite limites)
+    let finalGallery = "[]";
+    try {
+        if (gallery_images) {
+            const parsed = JSON.parse(gallery_images);
+            if (Array.isArray(parsed)) {
+                finalGallery = JSON.stringify(parsed.slice(0, planConfig.max_photos));
+            }
+        }
+    } catch (e) {
+        console.warn('[Admin] Galeria JSON inválida enviada, ignorando.');
+    }
 
-    res.redirect('/admin');
+    let listingId = id;
+
+    const saveAction = db.transaction(() => {
+        // Capturar cidades antigas para garantir rebuild das que forem removidas
+        const oldCities = db.prepare('SELECT city_ibge_id FROM listing_service_cities WHERE listing_id = ?').all(listingId).map(c => c.city_ibge_id);
+
+        if (id) {
+            // Atualiza
+            db.prepare('UPDATE listings SET company_name = ?, slug = ?, plan_level = ?, whatsapp_number = ?, call_number = ?, description_markdown = ?, gallery_images = ?, is_dirty = 1 WHERE id = ?')
+              .run(company_name, safeSlug, plan_level, safeWhatsapp, safeCallNumber, description_markdown, finalGallery, id);
+        } else {
+            // Insere
+            const result = db.prepare('INSERT INTO listings (company_name, slug, plan_level, whatsapp_number, call_number, description_markdown, gallery_images, is_dirty) VALUES (?, ?, ?, ?, ?, ?, ?, 1)')
+                             .run(company_name, safeSlug, plan_level, safeWhatsapp, safeCallNumber, description_markdown, finalGallery);
+            listingId = result.lastInsertRowid;
+        }
+
+        // Sincronizar Categorias
+        db.prepare('DELETE FROM category_listings WHERE listing_id = ?').run(listingId);
+        if (category_ids) {
+            const ids = Array.isArray(category_ids) ? category_ids : [category_ids];
+            const insertStmt = db.prepare('INSERT INTO category_listings (listing_id, category_id) VALUES (?, ?)');
+            for (const catId of ids) {
+                insertStmt.run(listingId, catId);
+            }
+        }
+
+        // Sincronizar Cidades de Atuação
+        db.prepare('DELETE FROM listing_service_cities WHERE listing_id = ?').run(listingId);
+        const insertCityStmt = db.prepare('INSERT INTO listing_service_cities (listing_id, city_ibge_id) VALUES (?, ?)');
+        for (const cityId of finalCityIds) {
+            if (cityId) insertCityStmt.run(listingId, cityId);
+        }
+
+        // Marcar todas as cidades vinculadas (antigas e novas) como sujas para rebuild
+        const allAffectedCities = [...new Set([...oldCities, ...finalCityIds])];
+        if (allAffectedCities.length > 0) {
+            const placeholders = allAffectedCities.map(() => '?').join(',');
+            db.prepare(`UPDATE cities SET is_dirty = 1 WHERE ibge_id IN (${placeholders})`).run(...allAffectedCities);
+        }
+    });
+
+    try {
+        saveAction();
+        res.redirect('/admin');
+    } catch (err) {
+        console.error('[Admin Save Error]:', err);
+        res.status(500).send('Erro ao salvar o parceiro.');
+    }
 });
 
 module.exports = router;

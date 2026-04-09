@@ -2,42 +2,93 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mecânica Automotiva em Novo Hamburgo - RS | Auto Guincho</title>
-    <meta name="description" content="Os melhores profissionais de Mecânica Automotiva disponíveis em Novo Hamburgo. Ligue diretamente sem intermediários.">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        .bg-navy { background-color: #050b14; }
-        .text-gold { color: #d4af37; border-color: #d4af37; }
-        .bg-gold { background-color: #d4af37; }
-        .text-ivory { color: #f8f9fa; }
-        
-        /* SHUFFLE SEM PISCAR A TELA PARA ELITE / PARTNER */
-        .grid-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1.5rem;
-        }
-        .partner-card {
-            flex: 1 1 calc(33.333% - 1.5rem);
-            min-width: 280px;
-        }
-        @media (max-width: 768px) {
-            .partner-card { flex: 1 1 100%; }
-        }
-    </style>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mecânica Automotiva em Novo Hamburgo - RS | Auto Guincho 24h</title>
+<meta name="description" content="Procurando Mecânica Automotiva em Novo Hamburgo? Acesse agora e fale direto com os melhores motoristas cadastrados na região de Novo Hamburgo - RS.">
+
+<!-- SEO: Canonicals e OG -->
+
+<link rel="canonical" href="https://autoguincho.com.br/mecanica-automotiva/rs/novo-hamburgo">
+<meta property="og:title" content="Mecânica Automotiva em Novo Hamburgo - RS | Auto Guincho 24h">
+<meta property="og:description" content="Procurando Mecânica Automotiva em Novo Hamburgo? Acesse agora e fale direto com os melhores motoristas cadastrados na região de Novo Hamburgo - RS.">
+<meta property="og:image" content="https://autoguincho.com.br/images/og-default.webp">
+<meta property="og:url" content="https://autoguincho.com.br/mecanica-automotiva/rs/novo-hamburgo">
+<meta name="twitter:card" content="summary_large_image">
+
+
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+    .bg-navy { background-color: #050b14; }
+    .text-gold { color: #d4af37; border-color: #d4af37; }
+    .bg-gold { background-color: #d4af37; }
+    .text-ivory { color: #f8f9fa; }
     
-    <!-- SEO: JSON LOAD PARA A CIDADE E SERVIÇO -->
+    /* Markdown Styles */
+    .markdown-body h1, .markdown-body h2 { font-weight: bold; color: #f8f9fa; margin-top: 1.5rem; margin-bottom: 1rem; border-bottom: 1px solid #1f2937; padding-bottom: 0.5rem; }
+    .markdown-body h1 { font-size: 1.75rem; }
+    .markdown-body h2 { font-size: 1.5rem; }
+    .markdown-body p { margin-bottom: 1rem; line-height: 1.6; }
+    .markdown-body strong { color: #d4af37; }
+</style>
+
+<!-- Delayed Analytics (Padrão Corpo Digital 5s) -->
+
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    
+    let gtagLoaded = false;
+    function loadGTM() {
+        if (gtagLoaded) return;
+        gtagLoaded = true;
+        const script = document.createElement('script');
+        script.src = 'https://www.googletagmanager.com/gtag/js?id=G-RH7NJS9PH6';
+        script.async = true;
+        document.head.appendChild(script);
+        gtag('config', 'G-RH7NJS9PH6', { page_path: window.location.pathname });
+        ['scroll', 'mousemove', 'touchstart', 'click', 'keydown'].forEach(evt => {
+            window.removeEventListener(evt, loadGTM);
+        });
+    }
+    ['scroll', 'mousemove', 'touchstart', 'click', 'keydown'].forEach(evt => {
+        window.addEventListener(evt, loadGTM, { passive: true, once: true });
+    });
+    setTimeout(loadGTM, 5000);
+</script>
+
+
+    
+    <!-- SEO: JSON-LD @graph (Breadcrumbs + LocalBusiness) -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "LocalBusiness",
-      "name": "Auto Guincho Novo Hamburgo",
-      "description": "Catálogo de Mecânica Automotiva na região de Novo Hamburgo - RS.",
-      "areaServed": {
-        "@type": "City",
-        "name": "Novo Hamburgo"
-      }
+      "@graph": [
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Início", "item": "https://autoguincho.com.br" },
+            { "@type": "ListItem", "position": 2, "name": "Mecânica Automotiva", "item": "https://autoguincho.com.br/#search" },
+            { "@type": "ListItem", "position": 3, "name": "Novo Hamburgo", "item": "https://autoguincho.com.br/mecanica-automotiva/rs/novo-hamburgo" }
+          ]
+        },
+        {
+          "@type": "ItemList",
+          "name": "Mecânica Automotiva em Novo Hamburgo",
+          "description": "Lista de profissionais de Mecânica Automotiva em Novo Hamburgo, RS.",
+          "itemListElement": [
+            
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "url": "https://autoguincho.com.br/perfil/mecanica-weranto",
+              "name": "Mecânica Weranto"
+            }
+            
+          ]
+        }
+      ]
     }
     </script>
 </head>
@@ -47,7 +98,15 @@
 <header class="py-4 px-4 md:px-8 border-b border-gray-800">
     <div class="max-w-7xl mx-auto flex justify-between items-center">
         <a href="/" class="text-xl font-black tracking-tighter text-white">Auto<span class="text-gold">Guincho</span></a>
-        <a href="/mecanica-automotiva/rs/novo-hamburgo" class="text-sm border border-gray-700 px-3 py-1 rounded-full text-gray-300">
+        
+        <!-- Breadcrumb Visual -->
+        <nav class="hidden md:flex items-center gap-2 text-xs text-gray-500 uppercase tracking-widest font-bold">
+            <a href="/" class="hover:text-gold">Início</a>
+            <span>/</span>
+            <span class="text-gray-300">Novo Hamburgo</span>
+        </nav>
+
+        <a href="/" class="text-sm border border-gray-700 px-3 py-1 rounded-full text-gray-300">
             Novo Hamburgo, RS
         </a>
     </div>
@@ -64,13 +123,12 @@
     </div>
 
     
-        <div class="grid-container" id="cards-container">
+        <div class="flex flex-wrap gap-6" id="cards-container">
             
-                <!-- Determina o tier_weight no HTML para ordem via CSS (O peso garante Elite vs Partner vs Basic) -->
                 
                 
-                <div class="partner-card bg-gray-900 rounded-2xl shadow-lg border border-gray-800 overflow-hidden flex flex-col" 
-                     data-tier="3" data-salt="0.6403671880671151">
+                <div class="flex-1 min-w-[280px] bg-gray-900 rounded-2xl shadow-lg border border-gray-800 overflow-hidden flex flex-col" 
+                     data-tier="3" data-salt="0.25269681782801645">
                     
                     
 
@@ -90,23 +148,21 @@
     
 </main>
 
-<footer class="py-8 bg-black/50 text-center text-sm text-gray-600 border-t border-gray-800">
-    <p>&copy; 2026 Auto Guincho.</p>
+<footer class="py-12 bg-black/50 text-center text-sm text-gray-500 border-t border-gray-800 mt-auto">
+    <div class="max-w-6xl mx-auto px-4">
+        <p class="mb-2 font-bold uppercase tracking-widest text-gray-600">Diretório de profissionais de socorro</p>
+        <p>&copy; 2026 Auto Guincho. Desenvolvido pela unidade de performance | Corpo Digital
+        </p>
+    </div>
 </footer>
 
-<!-- JS INLINE para Shuffle sem FLICKER via CSS Order -->
 <script>
     document.addEventListener("DOMContentLoaded", () => {
         const container = document.getElementById("cards-container");
         if(!container) return;
         const cards = Array.from(container.children);
-        
         cards.forEach(card => {
             const tier = parseInt(card.getAttribute('data-tier'), 10);
-            const salt = parseFloat(card.getAttribute('data-salt'));
-            // Calculo da ordem hibrida.
-            // Ex: Elite (1) tem order 10 + algo.
-            // Aqui multiplicamos por 1000 p criar scale. Aleatório dentro do mesmo Tier.
             let finalOrder = (tier * 1000) + Math.floor(Math.random() * 999);
             card.style.order = finalOrder;
         });

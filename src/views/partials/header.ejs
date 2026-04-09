@@ -1,0 +1,86 @@
+<!-- src/views/partials/header.ejs -->
+<header class="py-6 px-4 md:px-8 bg-black/30 sticky top-0 backdrop-blur-md border-b border-gray-800 z-50">
+    <div class="max-w-7xl mx-auto flex justify-between items-center">
+        <a href="/" class="text-2xl font-black tracking-tighter text-white">Auto<span class="text-gold">Guincho</span></a>
+        
+        <!-- Menu Desktop -->
+        <nav class="hidden md:flex gap-6 text-sm font-medium text-gray-300 items-center">
+            <a href="/guincho-plataforma" class="hover:text-gold transition-colors">Guinchos</a>
+            <a href="/mecanica-rapida" class="hover:text-gold transition-colors">Mecânica</a>
+            <a href="/borracharia" class="hover:text-gold transition-colors">Borracharia</a>
+            <a href="/chaveiro-24h" class="hover:text-gold transition-colors">Chaveiros</a>
+            
+            <div class="relative group">
+                <button class="flex items-center gap-1 hover:text-gold transition-colors py-2 focus:outline-none">
+                    Todos os Serviços
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+                <div class="absolute left-0 mt-0 w-64 bg-gray-900 border border-gray-800 rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-[60] py-2">
+                    <div class="grid grid-cols-1 max-h-[70vh] overflow-y-auto">
+                        <% allCategories.forEach(cat => { %>
+                            <a href="/<%= cat.slug %>" class="px-4 py-2 hover:bg-gray-800 hover:text-gold text-xs transition-colors"><%= cat.name %></a>
+                        <% }); %>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Botão Mobile -->
+        <button id="mobile-menu-btn" class="md:hidden text-gray-300 focus:outline-none p-2" aria-label="Abrir Menu">
+            <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path id="menu-icon-path" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+        </button>
+    </div>
+
+    <!-- Menu Mobile Overlay -->
+    <div id="mobile-menu" class="hidden md:hidden absolute left-0 top-full w-full bg-gray-900 border-b border-gray-800 shadow-2xl py-4 px-6 flex flex-col gap-2 animate-in slide-in-from-top-4 duration-200 max-h-[80vh] overflow-y-auto">
+        <a href="/guincho-plataforma" class="py-2 text-lg font-bold border-b border-gray-800 hover:text-gold transition-colors">Guinchos</a>
+        <a href="/mecanica-rapida" class="py-2 text-lg font-bold border-b border-gray-800 hover:text-gold transition-colors">Mecânica</a>
+        <a href="/borracharia" class="py-2 text-lg font-bold border-b border-gray-800 hover:text-gold transition-colors">Borracharia</a>
+        <a href="/chaveiro-24h" class="py-2 text-lg font-bold border-b border-gray-800 hover:text-gold transition-colors">Chaveiros</a>
+        
+        <div class="py-2">
+            <p class="text-[10px] uppercase tracking-widest text-gray-500 font-bold mb-2">Outros Serviços</p>
+            <div class="grid grid-cols-2 gap-x-4 gap-y-1">
+                <% allCategories.forEach(cat => { %>
+                    <a href="/<%= cat.slug %>" class="text-xs py-1 text-gray-400 hover:text-gold"><%= cat.name %></a>
+                <% }); %>
+            </div>
+        </div>
+
+        <a href="https://wa.me/5551993668728?text=Olá, quero cadastrar minha empresa gratuitamente." target="_blank" class="mt-4 bg-gold text-black text-center font-black py-4 rounded-xl">
+            CADASTRAR MINHA EMPRESA
+        </a>
+    </div>
+</header>
+
+<script>
+    // Logic for Mobile Menu (Unified)
+    document.addEventListener('DOMContentLoaded', () => {
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const menuIconPath = document.getElementById('menu-icon-path');
+
+        if (mobileMenuBtn && mobileMenu && menuIconPath) {
+            mobileMenuBtn.addEventListener('click', () => {
+                const isHidden = mobileMenu.classList.contains('hidden');
+                if (isHidden) {
+                    mobileMenu.classList.remove('hidden');
+                    menuIconPath.setAttribute('d', 'M6 18L18 6M6 6l12 12');
+                } else {
+                    mobileMenu.classList.add('hidden');
+                    menuIconPath.setAttribute('d', 'M4 6h16M4 12h16M4 18h16');
+                }
+            });
+
+            // Close when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!mobileMenuBtn.contains(e.target) && !mobileMenu.contains(e.target)) {
+                    mobileMenu.classList.add('hidden');
+                    menuIconPath.setAttribute('d', 'M4 6h16M4 12h16M4 18h16');
+                }
+            });
+        }
+    });
+</script>

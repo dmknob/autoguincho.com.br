@@ -1,57 +1,43 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= category.name %> em <%= city.name %> - <%= city.state_uf %> | Auto Guincho</title>
-    <meta name="description" content="Os melhores profissionais de <%= category.name %> disponíveis em <%= city.name %>. Ligue diretamente sem intermediários.">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        .bg-navy { background-color: #050b14; }
-        .text-gold { color: #d4af37; border-color: #d4af37; }
-        .bg-gold { background-color: #d4af37; }
-        .text-ivory { color: #f8f9fa; }
-        
-        /* SHUFFLE SEM PISCAR A TELA PARA ELITE / PARTNER */
-        .grid-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1.5rem;
-        }
-        .partner-card {
-            flex: 1 1 calc(33.333% - 1.5rem);
-            min-width: 280px;
-        }
-        @media (max-width: 768px) {
-            .partner-card { flex: 1 1 100%; }
-        }
-    </style>
+    <%- include('../partials/head') %>
     
-    <!-- SEO: JSON LOAD PARA A CIDADE E SERVIÇO -->
+    <!-- SEO: JSON-LD @graph (Breadcrumbs + LocalBusiness) -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "LocalBusiness",
-      "name": "Auto Guincho <%= city.name %>",
-      "description": "Catálogo de <%= category.name %> na região de <%= city.name %> - <%= city.state_uf %>.",
-      "areaServed": {
-        "@type": "City",
-        "name": "<%= city.name %>"
-      }
+      "@graph": [
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Início", "item": "<%= BASE_URL %>" },
+            { "@type": "ListItem", "position": 2, "name": "<%= category.name %>", "item": "<%= BASE_URL %>/#search" },
+            { "@type": "ListItem", "position": 3, "name": "<%= city.name %>", "item": "<%= BASE_URL %><%= path %>" }
+          ]
+        },
+        {
+          "@type": "ItemList",
+          "name": "<%= category.name %> em <%= city.name %>",
+          "description": "Lista de profissionais de <%= category.name %> em <%= city.name %>, <%= city.state_uf %>.",
+          "itemListElement": [
+            <% listings.forEach(function(l, index) { %>
+            {
+              "@type": "ListItem",
+              "position": <%= index + 1 %>,
+              "url": "<%= BASE_URL %>/perfil/<%= l.slug %>",
+              "name": "<%= l.company_name %>"
+            }<%= index < listings.length - 1 ? ',' : '' %>
+            <% }); %>
+          ]
+        }
+      ]
     }
     </script>
 </head>
 <body class="bg-navy font-sans text-ivory min-h-screen flex flex-col">
 
-<!-- Header Simples -->
-<header class="py-4 px-4 md:px-8 border-b border-gray-800">
-    <div class="max-w-7xl mx-auto flex justify-between items-center">
-        <a href="/" class="text-xl font-black tracking-tighter text-white">Auto<span class="text-gold">Guincho</span></a>
-        <a href="<%= '/' + category.slug + '/' + city.state_uf.toLowerCase() + '/' + city.slug %>" class="text-sm border border-gray-700 px-3 py-1 rounded-full text-gray-300">
-            <%= city.name %>, <%= city.state_uf %>
-        </a>
-    </div>
-</header>
+<%- include('../partials/header') %>
 
 <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 flex-grow w-full">
     <div class="mb-8 border-b border-gray-800 pb-5">
@@ -67,18 +53,18 @@
         <div class="text-center py-20 bg-gray-900 rounded-2xl shadow-lg border border-gray-800">
             <h3 class="mt-2 text-xl font-medium text-ivory">Nenhum profissional listado nesta cidade ainda.</h3>
             <p class="mt-1 text-sm text-gray-400">Seja o primeiro parceiro e domine esta região!</p>
+            <a href="https://wa.me/5551993668728" class="mt-6 inline-block bg-gold text-black font-bold px-6 py-3 rounded-xl hover:scale-105 transition-transform">Quero me cadastrar</a>
         </div>
     <% } else { %>
-        <div class="grid-container" id="cards-container">
+        <div class="flex flex-wrap gap-6" id="cards-container">
             <% listings.forEach(function(l) { %>
-                <!-- Determina o tier_weight no HTML para ordem via CSS (O peso garante Elite vs Partner vs Basic) -->
                 <% 
                     let tierWeight = 3;
                     if(l.plan_level === 'elite') tierWeight = 1;
                     if(l.plan_level === 'partner') tierWeight = 2;
                 %>
                 
-                <div class="partner-card bg-gray-900 rounded-2xl shadow-lg border <%= l.plan_level === 'elite' ? 'border-gold shadow-gold/10' : 'border-gray-800' %> overflow-hidden flex flex-col" 
+                <div class="flex-1 min-w-[280px] bg-gray-900 rounded-2xl shadow-lg border <%= l.plan_level === 'elite' ? 'border-gold shadow-gold/10' : 'border-gray-800' %> overflow-hidden flex flex-col" 
                      data-tier="<%= tierWeight %>" data-salt="<%= Math.random() %>">
                     
                     <% if(l.plan_level === 'elite') { %>
@@ -101,23 +87,15 @@
     <% } %>
 </main>
 
-<footer class="py-8 bg-black/50 text-center text-sm text-gray-600 border-t border-gray-800">
-    <p>&copy; <%= new Date().getFullYear() %> Auto Guincho.</p>
-</footer>
+<%- include('../partials/footer') %>
 
-<!-- JS INLINE para Shuffle sem FLICKER via CSS Order -->
 <script>
     document.addEventListener("DOMContentLoaded", () => {
         const container = document.getElementById("cards-container");
         if(!container) return;
         const cards = Array.from(container.children);
-        
         cards.forEach(card => {
             const tier = parseInt(card.getAttribute('data-tier'), 10);
-            const salt = parseFloat(card.getAttribute('data-salt'));
-            // Calculo da ordem hibrida.
-            // Ex: Elite (1) tem order 10 + algo.
-            // Aqui multiplicamos por 1000 p criar scale. Aleatório dentro do mesmo Tier.
             let finalOrder = (tier * 1000) + Math.floor(Math.random() * 999);
             card.style.order = finalOrder;
         });

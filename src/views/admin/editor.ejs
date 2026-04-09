@@ -49,6 +49,14 @@
                 class="block w-full max-w-lg rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-900 sm:max-w-xs sm:text-sm sm:leading-6 pl-2">
             </div>
           </div>
+
+          <div class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:py-6">
+            <label for="call_number" class="block text-sm font-medium leading-6 text-gray-900 sm:pt-1.5">Telefone (Ligações)</label>
+            <div class="mt-2 sm:col-span-2 sm:mt-0">
+              <input type="text" name="call_number" id="call_number" placeholder="5511999999999" value="<%= typeof partner !== 'undefined' && partner.call_number ? partner.call_number : '' %>"
+                class="block w-full max-w-lg rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-900 sm:max-w-xs sm:text-sm sm:leading-6 pl-2">
+            </div>
+          </div>
   
           <div class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:py-6 border-t border-gray-200">
             <label for="plan_level" class="block text-sm font-medium leading-6 text-gray-900 sm:pt-1.5">Nível da Assinatura</label>
@@ -58,6 +66,28 @@
                 <option value="partner" <%= typeof partner !== 'undefined' && partner.plan_level === 'partner' ? 'selected' : '' %>>Parceiro</option>
                 <option value="elite" <%= typeof partner !== 'undefined' && partner.plan_level === 'elite' ? 'selected' : '' %>>Elite</option>
               </select>
+            </div>
+          </div>
+
+          <div class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:py-6 border-t border-gray-200">
+            <label class="block text-sm font-medium leading-6 text-gray-900 sm:pt-1.5">Categorias de Serviço</label>
+            <div class="mt-2 sm:col-span-2 sm:mt-0">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <% categories.forEach(cat => { %>
+                  <div class="relative flex items-start">
+                    <div class="flex h-6 items-center">
+                      <input id="cat-<%= cat.id %>" name="category_ids" value="<%= cat.id %>" type="checkbox" 
+                        <%= selectedCategoryIds.includes(cat.id) ? 'checked' : '' %>
+                        class="h-4 w-4 rounded border-gray-300 text-gray-900 focus:ring-gray-900">
+                    </div>
+                    <div class="ml-3 text-sm leading-6">
+                      <label for="cat-<%= cat.id %>" class="font-medium text-gray-900"><%= cat.name %></label>
+                      <p class="text-gray-500 text-xs">Ativa silo em /<%= cat.slug %></p>
+                    </div>
+                  </div>
+                <% }) %>
+              </div>
+              <p class="mt-2 text-xs text-gray-500 italic">*Selecione ao menos uma categoria para o parceiro aparecer nas buscas.</p>
             </div>
           </div>
         </div>
@@ -70,8 +100,51 @@
           <p class="mt-1 max-w-2xl text-sm text-gray-500">Crie o texto formatado para ser visualizado pelo usuário e processado pelo Google. Disponível fidedignamente no plano Elite/Parceiro.</p>
         </div>
   
+          <div class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:py-6 border-t border-gray-200">
+            <label class="block text-sm font-medium leading-6 text-gray-900 sm:pt-1.5">Abrangência (Cidades)</label>
+            <div class="mt-2 sm:col-span-2 sm:mt-0 max-w-lg">
+              <!-- Busca de Cidade -->
+              <div class="relative">
+                <input type="text" id="city-search" placeholder="Buscar cidade para adicionar..." 
+                       class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-900 sm:text-sm sm:leading-6 pl-2">
+                <ul id="city-results" class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm hidden"></ul>
+              </div>
+              
+              <!-- Lista de Cidades (Tags) -->
+              <div id="selected-cities-tags" class="mt-4 flex flex-wrap gap-2">
+                <% selectedCities.forEach(city => { %>
+                  <span class="inline-flex items-center gap-x-1.5 rounded-md bg-gray-100 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-200" data-id="<%= city.ibge_id %>">
+                    <%= city.name %> - <%= city.state_uf %>
+                    <button type="button" onclick="removeCity(<%= city.ibge_id %>)" class="group relative -mr-1 h-3.5 w-3.5 rounded-sm hover:bg-gray-200">
+                      <svg viewBox="0 0 14 14" class="h-3.5 w-3.5 stroke-gray-600/50 group-hover:stroke-gray-600/75"><path d="M4 4l6 6m0-6l-6 6" /></svg>
+                    </button>
+                    <input type="hidden" name="city_ids" value="<%= city.ibge_id %>">
+                  </span>
+                <% }) %>
+              </div>
+              <p class="mt-2 text-xs text-gray-500 italic">Limites: Básico (1), Parceiro (12), Elite (Ilimitado).</p>
+            </div>
+          </div>
+        </div>
+      </div>
+  
+      <!-- Descrição Rica (Markdown) e Galeria -->
+      <div class="pt-8 space-y-6 sm:space-y-5">
+        <div>
+          <h3 class="text-base font-semibold leading-6 text-gray-900">Conteúdo Rico e Galeria</h3>
+          <p class="mt-1 max-w-2xl text-sm text-gray-500">Imagens e narrativa de autoridade do parceiro.</p>
+        </div>
+  
+        <div class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:py-6 border-t border-gray-200">
+            <label for="gallery_images" class="block text-sm font-medium leading-6 text-gray-900 sm:pt-1.5">Galeria JSON (URLs)</label>
+            <div class="mt-2 sm:col-span-2 sm:mt-0">
+              <textarea name="gallery_images" id="gallery_images" rows="3" class="block w-full max-w-lg rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-900 sm:text-sm sm:leading-6 pl-2 font-mono"><%= typeof partner !== 'undefined' ? (partner.gallery_images || '[]') : '[]' %></textarea>
+              <p class="mt-2 text-xs text-gray-500">Formato: ["url1", "url2"]. Respeita os limites do plano.</p>
+            </div>
+        </div>
+
         <div class="mt-2">
-            <!-- Container do EasyMDE -->
+            <label class="block text-sm font-medium leading-6 text-gray-900 mb-2">Descrição Markdown</label>
             <textarea id="description_markdown" name="description_markdown" class="invisible">
                 <%= typeof partner !== 'undefined' && partner.description_markdown ? partner.description_markdown : '' %>
             </textarea>
@@ -88,13 +161,73 @@
   </div>
   
   <script>
-    // Inicialização do Editor Markdown EasyMDE na View
     document.addEventListener("DOMContentLoaded", function() {
+        // Inicialização do Editor Markdown EasyMDE
         const easymde = new EasyMDE({
             element: document.getElementById('description_markdown'),
             spellChecker: false,
             autosave: { enabled: true, uniqueId: "ag_v2_partner_autosave" },
             toolbar: ["bold", "italic", "heading", "|", "quote", "unordered-list", "ordered-list", "|", "link", "preview", "side-by-side", "fullscreen"]
+        });
+
+        // Gestão de Cidades (Autocomplete)
+        const citySearch = document.getElementById('city-search');
+        const cityResults = document.getElementById('city-results');
+        const tagsContainer = document.getElementById('selected-cities-tags');
+        let debounceTimer;
+
+        citySearch.addEventListener('input', () => {
+            clearTimeout(debounceTimer);
+            const query = citySearch.value.trim();
+            if (query.length < 2) {
+                cityResults.classList.add('hidden');
+                return;
+            }
+
+            debounceTimer = setTimeout(async () => {
+                const res = await fetch(`/api/cities/search?q=${query}`);
+                const data = await res.json();
+                
+                if (data.success) {
+                    cityResults.innerHTML = '';
+                    data.cities.forEach(city => {
+                        const li = document.createElement('li');
+                        li.className = "cursor-pointer select-none py-2 pl-3 pr-9 text-gray-900 hover:bg-gray-100";
+                        li.textContent = `${city.name} - ${city.state_uf}`;
+                        li.onclick = () => addCity(city);
+                        cityResults.appendChild(li);
+                    });
+                    cityResults.classList.remove('hidden');
+                }
+            }, 300);
+        });
+
+        window.addCity = (city) => {
+            // Verificar se já existe
+            if (document.querySelector(`[data-id="${city.ibge_id}"]`)) return;
+
+            const span = document.createElement('span');
+            span.className = "inline-flex items-center gap-x-1.5 rounded-md bg-gray-100 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-200";
+            span.setAttribute('data-id', city.ibge_id);
+            span.innerHTML = `${city.name} - ${city.state_uf}
+                <button type="button" onclick="removeCity(${city.ibge_id})" class="group relative -mr-1 h-3.5 w-3.5 rounded-sm hover:bg-gray-200">
+                  <svg viewBox="0 0 14 14" class="h-3.5 w-3.5 stroke-gray-600/50 group-hover:stroke-gray-600/75"><path d="M4 4l6 6m0-6l-6 6" /></svg>
+                </button>
+                <input type="hidden" name="city_ids" value="${city.ibge_id}">`;
+            
+            tagsContainer.appendChild(span);
+            citySearch.value = '';
+            cityResults.classList.add('hidden');
+        };
+
+        window.removeCity = (id) => {
+            const tag = document.querySelector(`[data-id="${id}"]`);
+            if (tag) tag.remove();
+        };
+
+        // Fechar resultados ao clicar fora
+        document.addEventListener('click', (e) => {
+            if (!citySearch.contains(e.target)) cityResults.classList.add('hidden');
         });
     });
   </script>

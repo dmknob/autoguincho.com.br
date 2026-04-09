@@ -2,66 +2,307 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Auto Guincho - Maior portal de socorro automotivo</title>
-    <meta name="description" content="Encontre guinchos, muncks e mecânica rápida perto de você. Sem intermediários. Fale direto com o motorista.">
-    <!-- Tailwind CSS Integrado (para o build SSG usaremos CDN na v2 inicial para simplificar) -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        .bg-navy { background-color: #050b14; }
-        .text-gold { color: #d4af37; border-color: #d4af37; }
-        .bg-gold { background-color: #d4af37; }
-        .text-ivory { color: #f8f9fa; }
-    </style>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Auto Guincho - Socorro Automotivo Próximo a Você</title>
+<meta name="description" content="Encontre guinchos, mecânica rápida e socorro 24h em todo o Brasil. Fale direto com o motorista sem taxas.">
+
+<!-- SEO: Canonicals e OG -->
+
+<link rel="canonical" href="https://autoguincho.com.br">
+<meta property="og:title" content="Auto Guincho - Socorro Automotivo Próximo a Você">
+<meta property="og:description" content="Encontre guinchos, mecânica rápida e socorro 24h em todo o Brasil. Fale direto com o motorista sem taxas.">
+<meta property="og:image" content="https://autoguincho.com.br/images/og-default.webp">
+<meta property="og:url" content="https://autoguincho.com.br">
+<meta name="twitter:card" content="summary_large_image">
+
+
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+    .bg-navy { background-color: #050b14; }
+    .text-gold { color: #d4af37; border-color: #d4af37; }
+    .bg-gold { background-color: #d4af37; }
+    .text-ivory { color: #f8f9fa; }
+    
+    /* Markdown Styles */
+    .markdown-body h1, .markdown-body h2 { font-weight: bold; color: #f8f9fa; margin-top: 1.5rem; margin-bottom: 1rem; border-bottom: 1px solid #1f2937; padding-bottom: 0.5rem; }
+    .markdown-body h1 { font-size: 1.75rem; }
+    .markdown-body h2 { font-size: 1.5rem; }
+    .markdown-body p { margin-bottom: 1rem; line-height: 1.6; }
+    .markdown-body strong { color: #d4af37; }
+</style>
+
+<!-- Delayed Analytics (Padrão Corpo Digital 5s) -->
+
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    
+    let gtagLoaded = false;
+    function loadGTM() {
+        if (gtagLoaded) return;
+        gtagLoaded = true;
+        const script = document.createElement('script');
+        script.src = 'https://www.googletagmanager.com/gtag/js?id=G-RH7NJS9PH6';
+        script.async = true;
+        document.head.appendChild(script);
+        gtag('config', 'G-RH7NJS9PH6', { page_path: window.location.pathname });
+        ['scroll', 'mousemove', 'touchstart', 'click', 'keydown'].forEach(evt => {
+            window.removeEventListener(evt, loadGTM);
+        });
+    }
+    ['scroll', 'mousemove', 'touchstart', 'click', 'keydown'].forEach(evt => {
+        window.addEventListener(evt, loadGTM, { passive: true, once: true });
+    });
+    setTimeout(loadGTM, 5000);
+</script>
+
+
+    
+    <!-- SEO: JSON-LD @graph (Padrão Corpo Digital) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebSite",
+          "@id": "https://autoguincho.com.br/#website",
+          "url": "https://autoguincho.com.br",
+          "name": "Auto Guincho",
+          "description": "Socorro Automotivo Próximo a Você",
+          "publisher": { "@id": "https://autoguincho.com.br/#organization" }
+        },
+        {
+          "@type": "Organization",
+          "@id": "https://autoguincho.com.br/#organization",
+          "name": "Auto Guincho",
+          "url": "https://autoguincho.com.br",
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://autoguincho.com.br/images/logo.png"
+          }
+        }
+      ]
+    }
+    </script>
 </head>
 <body class="bg-navy font-sans text-ivory min-h-screen flex flex-col">
 
-<!-- Header Simples -->
+<!-- src/views/partials/header.ejs -->
 <header class="py-6 px-4 md:px-8 bg-black/30 sticky top-0 backdrop-blur-md border-b border-gray-800 z-50">
-    <div class="max-w-6xl mx-auto flex justify-between items-center">
+    <div class="max-w-7xl mx-auto flex justify-between items-center">
         <a href="/" class="text-2xl font-black tracking-tighter text-white">Auto<span class="text-gold">Guincho</span></a>
-        <nav class="hidden md:flex gap-6 text-sm font-medium text-gray-300">
-            <a href="/guincho" class="hover:text-gold transition-colors">Guinchos</a>
-            <a href="/mecanico" class="hover:text-gold transition-colors">Mecânica</a>
-            <a href="/chaveiro" class="hover:text-gold transition-colors">Chaveiros</a>
+        
+        <!-- Menu Desktop -->
+        <nav class="hidden md:flex gap-6 text-sm font-medium text-gray-300 items-center">
+            <a href="/guincho-plataforma" class="hover:text-gold transition-colors">Guinchos</a>
+            <a href="/mecanica-rapida" class="hover:text-gold transition-colors">Mecânica</a>
+            <a href="/borracharia" class="hover:text-gold transition-colors">Borracharia</a>
+            <a href="/chaveiro-24h" class="hover:text-gold transition-colors">Chaveiros</a>
+            
+            <div class="relative group">
+                <button class="flex items-center gap-1 hover:text-gold transition-colors py-2 focus:outline-none">
+                    Todos os Serviços
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+                <div class="absolute left-0 mt-0 w-64 bg-gray-900 border border-gray-800 rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-[60] py-2">
+                    <div class="grid grid-cols-1 max-h-[70vh] overflow-y-auto">
+                        
+                            <a href="/acessorios-e-implementos" class="px-4 py-2 hover:bg-gray-800 hover:text-gold text-xs transition-colors">Acessórios e Implementos</a>
+                        
+                            <a href="/acessorios-e-implementos-fabrica-de-plataforma" class="px-4 py-2 hover:bg-gray-800 hover:text-gold text-xs transition-colors">Acessórios e Implementos, Fábrica de Plataforma</a>
+                        
+                            <a href="/auto-eletrica" class="px-4 py-2 hover:bg-gray-800 hover:text-gold text-xs transition-colors">Auto Elétrica</a>
+                        
+                            <a href="/auto-pecas" class="px-4 py-2 hover:bg-gray-800 hover:text-gold text-xs transition-colors">Auto Peças</a>
+                        
+                            <a href="/borracharia" class="px-4 py-2 hover:bg-gray-800 hover:text-gold text-xs transition-colors">Borracharia</a>
+                        
+                            <a href="/caminhao-guindaste-articulado-munck" class="px-4 py-2 hover:bg-gray-800 hover:text-gold text-xs transition-colors">Caminhão Guindaste Articulado - Munck</a>
+                        
+                            <a href="/chaveiro-24h" class="px-4 py-2 hover:bg-gray-800 hover:text-gold text-xs transition-colors">Chaveiro</a>
+                        
+                            <a href="/fabrica-de-guindaste-articulado-munck" class="px-4 py-2 hover:bg-gray-800 hover:text-gold text-xs transition-colors">Fábrica de Guindaste Articulado - Munck</a>
+                        
+                            <a href="/guincho-moto" class="px-4 py-2 hover:bg-gray-800 hover:text-gold text-xs transition-colors">Guincho Moto</a>
+                        
+                            <a href="/guincho-moto-acessorios-e-implementos" class="px-4 py-2 hover:bg-gray-800 hover:text-gold text-xs transition-colors">Guincho Moto, Acessórios e Implementos</a>
+                        
+                            <a href="/guincho-pesado-caminhao" class="px-4 py-2 hover:bg-gray-800 hover:text-gold text-xs transition-colors">Guincho Pesado - Caminhão</a>
+                        
+                            <a href="/guincho-plataforma" class="px-4 py-2 hover:bg-gray-800 hover:text-gold text-xs transition-colors">Guincho Plataforma</a>
+                        
+                            <a href="/mecanica-diesel" class="px-4 py-2 hover:bg-gray-800 hover:text-gold text-xs transition-colors">Mecanica Diesel</a>
+                        
+                            <a href="/mecanica-rapida" class="px-4 py-2 hover:bg-gray-800 hover:text-gold text-xs transition-colors">Mecânica Automotiva</a>
+                        
+                            <a href="/moto-pecas" class="px-4 py-2 hover:bg-gray-800 hover:text-gold text-xs transition-colors">Moto Peças</a>
+                        
+                            <a href="/retificadora" class="px-4 py-2 hover:bg-gray-800 hover:text-gold text-xs transition-colors">Retificadora</a>
+                        
+                    </div>
+                </div>
+            </div>
         </nav>
+
+        <!-- Botão Mobile -->
+        <button id="mobile-menu-btn" class="md:hidden text-gray-300 focus:outline-none p-2" aria-label="Abrir Menu">
+            <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path id="menu-icon-path" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+        </button>
+    </div>
+
+    <!-- Menu Mobile Overlay -->
+    <div id="mobile-menu" class="hidden md:hidden absolute left-0 top-full w-full bg-gray-900 border-b border-gray-800 shadow-2xl py-4 px-6 flex flex-col gap-2 animate-in slide-in-from-top-4 duration-200 max-h-[80vh] overflow-y-auto">
+        <a href="/guincho-plataforma" class="py-2 text-lg font-bold border-b border-gray-800 hover:text-gold transition-colors">Guinchos</a>
+        <a href="/mecanica-rapida" class="py-2 text-lg font-bold border-b border-gray-800 hover:text-gold transition-colors">Mecânica</a>
+        <a href="/borracharia" class="py-2 text-lg font-bold border-b border-gray-800 hover:text-gold transition-colors">Borracharia</a>
+        <a href="/chaveiro-24h" class="py-2 text-lg font-bold border-b border-gray-800 hover:text-gold transition-colors">Chaveiros</a>
+        
+        <div class="py-2">
+            <p class="text-[10px] uppercase tracking-widest text-gray-500 font-bold mb-2">Outros Serviços</p>
+            <div class="grid grid-cols-2 gap-x-4 gap-y-1">
+                
+                    <a href="/acessorios-e-implementos" class="text-xs py-1 text-gray-400 hover:text-gold">Acessórios e Implementos</a>
+                
+                    <a href="/acessorios-e-implementos-fabrica-de-plataforma" class="text-xs py-1 text-gray-400 hover:text-gold">Acessórios e Implementos, Fábrica de Plataforma</a>
+                
+                    <a href="/auto-eletrica" class="text-xs py-1 text-gray-400 hover:text-gold">Auto Elétrica</a>
+                
+                    <a href="/auto-pecas" class="text-xs py-1 text-gray-400 hover:text-gold">Auto Peças</a>
+                
+                    <a href="/borracharia" class="text-xs py-1 text-gray-400 hover:text-gold">Borracharia</a>
+                
+                    <a href="/caminhao-guindaste-articulado-munck" class="text-xs py-1 text-gray-400 hover:text-gold">Caminhão Guindaste Articulado - Munck</a>
+                
+                    <a href="/chaveiro-24h" class="text-xs py-1 text-gray-400 hover:text-gold">Chaveiro</a>
+                
+                    <a href="/fabrica-de-guindaste-articulado-munck" class="text-xs py-1 text-gray-400 hover:text-gold">Fábrica de Guindaste Articulado - Munck</a>
+                
+                    <a href="/guincho-moto" class="text-xs py-1 text-gray-400 hover:text-gold">Guincho Moto</a>
+                
+                    <a href="/guincho-moto-acessorios-e-implementos" class="text-xs py-1 text-gray-400 hover:text-gold">Guincho Moto, Acessórios e Implementos</a>
+                
+                    <a href="/guincho-pesado-caminhao" class="text-xs py-1 text-gray-400 hover:text-gold">Guincho Pesado - Caminhão</a>
+                
+                    <a href="/guincho-plataforma" class="text-xs py-1 text-gray-400 hover:text-gold">Guincho Plataforma</a>
+                
+                    <a href="/mecanica-diesel" class="text-xs py-1 text-gray-400 hover:text-gold">Mecanica Diesel</a>
+                
+                    <a href="/mecanica-rapida" class="text-xs py-1 text-gray-400 hover:text-gold">Mecânica Automotiva</a>
+                
+                    <a href="/moto-pecas" class="text-xs py-1 text-gray-400 hover:text-gold">Moto Peças</a>
+                
+                    <a href="/retificadora" class="text-xs py-1 text-gray-400 hover:text-gold">Retificadora</a>
+                
+            </div>
+        </div>
+
+        <a href="https://wa.me/5551993668728?text=Olá, quero cadastrar minha empresa gratuitamente." target="_blank" class="mt-4 bg-gold text-black text-center font-black py-4 rounded-xl">
+            CADASTRAR MINHA EMPRESA
+        </a>
     </div>
 </header>
 
+<script>
+    // Logic for Mobile Menu (Unified)
+    document.addEventListener('DOMContentLoaded', () => {
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const menuIconPath = document.getElementById('menu-icon-path');
+
+        if (mobileMenuBtn && mobileMenu && menuIconPath) {
+            mobileMenuBtn.addEventListener('click', () => {
+                const isHidden = mobileMenu.classList.contains('hidden');
+                if (isHidden) {
+                    mobileMenu.classList.remove('hidden');
+                    menuIconPath.setAttribute('d', 'M6 18L18 6M6 6l12 12');
+                } else {
+                    mobileMenu.classList.add('hidden');
+                    menuIconPath.setAttribute('d', 'M4 6h16M4 12h16M4 18h16');
+                }
+            });
+
+            // Close when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!mobileMenuBtn.contains(e.target) && !mobileMenu.contains(e.target)) {
+                    mobileMenu.classList.add('hidden');
+                    menuIconPath.setAttribute('d', 'M4 6h16M4 12h16M4 18h16');
+                }
+            });
+        }
+    });
+</script>
+
+
 <main class="flex-grow flex flex-col items-center justify-center p-6 text-center">
     <div class="max-w-3xl w-full">
-        <h1 class="text-5xl md:text-7xl font-extrabold tracking-tight mb-6 mt-10 leading-tight">
-            Seu Veículo Parou?<br/>
-            <span class="text-gold">Socorro Perto de Você.</span>
+        <h1 class="text-5xl md:text-7xl font-extrabold tracking-tight mb-4 mt-10 leading-tight">
+            <span class="text-gold">Socorro perto de você.</span>
         </h1>
-        <p class="text-lg md:text-xl text-gray-400 mb-10 max-w-2xl mx-auto">
-            Encontre profissionais no seu município. Negocie sem intermediários, comissionamentos ou taxas ocultas.
+        <p class="text-xl md:text-2xl text-gray-300 mb-10 font-medium">
+            Ecossistema completo de serviços leves e pesados.
         </p>
         
-        <div class="bg-gray-900 border border-gray-800 p-6 rounded-2xl shadow-2xl">
-            <form id="search-form" class="flex flex-col md:flex-row gap-4" onsubmit="event.preventDefault(); executeCitySearch();">
+        <div class="bg-gray-900 border border-gray-800 p-8 rounded-2xl shadow-2xl relative">
+            <form id="search-form" class="flex flex-col gap-6" onsubmit="event.preventDefault(); executeCitySearch();">
                 
-                <div class="flex-1">
-                    <label for="category-select" class="sr-only">Serviço Desejado</label>
-                    <select id="category-select" class="w-full bg-gray-800 border items-center border-gray-700 text-white rounded-xl px-4 py-4 focus:ring-2 focus:ring-gold focus:outline-none appearance-none cursor-pointer">
-                        <option value="guincho-plataforma" selected>Reboque / Guincho</option>
-                        <option value="mecanica-rapida">Mecânica Rápida</option>
-                        <option value="borracharia">Borracharia Auto</option>
-                        <option value="chaveiro-24h">Chaveiro 24h</option>
-                    </select>
-                </div>
-
-                <div class="flex-[2] relative">
-                    <label for="city-input" class="sr-only">Em qual cidade você está?</label>
-                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                        <svg class="h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="text-left w-full">
+                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 ml-1">Escolha o tipo de serviço</label>
+                        <select id="category-select" class="w-full bg-gray-800 border items-center border-gray-700 text-white rounded-xl px-4 py-4 focus:ring-2 focus:ring-gold focus:outline-none appearance-none cursor-pointer">
+                            
+                                <option value="acessorios-e-implementos" >Acessórios e Implementos</option>
+                            
+                                <option value="acessorios-e-implementos-fabrica-de-plataforma" >Acessórios e Implementos, Fábrica de Plataforma</option>
+                            
+                                <option value="auto-eletrica" >Auto Elétrica</option>
+                            
+                                <option value="auto-pecas" >Auto Peças</option>
+                            
+                                <option value="borracharia" >Borracharia</option>
+                            
+                                <option value="caminhao-guindaste-articulado-munck" >Caminhão Guindaste Articulado - Munck</option>
+                            
+                                <option value="chaveiro-24h" >Chaveiro</option>
+                            
+                                <option value="fabrica-de-guindaste-articulado-munck" >Fábrica de Guindaste Articulado - Munck</option>
+                            
+                                <option value="guincho-moto" >Guincho Moto</option>
+                            
+                                <option value="guincho-moto-acessorios-e-implementos" >Guincho Moto, Acessórios e Implementos</option>
+                            
+                                <option value="guincho-pesado-caminhao" >Guincho Pesado - Caminhão</option>
+                            
+                                <option value="guincho-plataforma" selected>Guincho Plataforma</option>
+                            
+                                <option value="mecanica-diesel" >Mecanica Diesel</option>
+                            
+                                <option value="mecanica-rapida" >Mecânica Automotiva</option>
+                            
+                                <option value="moto-pecas" >Moto Peças</option>
+                            
+                                <option value="retificadora" >Retificadora</option>
+                            
+                        </select>
                     </div>
-                    <input type="text" id="city-input" required autocomplete="off" placeholder="Digite sua cidade (Ex: Novo Hamburgo)..." class="w-full bg-gray-800 border items-center border-gray-700 text-white rounded-xl pl-12 pr-4 py-4 focus:ring-2 focus:ring-gold focus:outline-none focus:border-transparent">
-                    
-                    <!-- Autocomplete Dropdown -->
-                    <ul id="autocomplete-list" class="absolute z-10 w-full bg-gray-800 border border-t-0 border-gray-700 rounded-b-xl shadow-2xl mt-1 hidden max-h-60 overflow-y-auto text-left">
-                        <!-- Itens vão aqui via JS -->
-                    </ul>
+
+                    <div class="text-left w-full relative">
+                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 ml-1">Selecione a cidade</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <svg class="h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                            </div>
+                            <input type="text" id="city-input" required autocomplete="off" placeholder="Ex: São Paulo, Porto Alegre..." class="w-full bg-gray-800 border items-center border-gray-700 text-white rounded-xl pl-12 pr-4 py-4 focus:ring-2 focus:ring-gold focus:outline-none focus:border-transparent">
+                        </div>
+                        
+                        <!-- Autocomplete Dropdown -->
+                        <ul id="autocomplete-list" class="absolute z-50 w-full bg-gray-800 border border-t-0 border-gray-700 rounded-b-xl shadow-2xl mt-1 hidden max-h-60 overflow-y-auto text-left">
+                            <!-- Itens vão aqui via JS -->
+                        </ul>
+                    </div>
                 </div>
 
                 <div class="hidden">
@@ -69,18 +310,122 @@
                     <input type="hidden" id="selected-city-slug" value="">
                 </div>
 
-                <button type="button" onclick="executeCitySearch()" class="bg-gold hover:bg-yellow-500 text-black font-bold text-lg px-8 py-4 rounded-xl transition-all whitespace-nowrap shadow-[0_0_15px_rgba(212,175,55,0.4)]">
-                    Encontrar
+                <button type="button" onclick="executeCitySearch()" class="w-full bg-gold hover:bg-yellow-500 text-black font-black text-xl px-8 py-5 rounded-xl transition-all shadow-[0_0_20px_rgba(212,175,55,0.3)] hover:scale-[1.01] active:scale-95">
+                    ENCONTRAR AGORA
                 </button>
             </form>
             <p id="geo-status" class="mt-4 text-sm text-red-400 hidden"></p>
         </div>
 
+        <!-- CTA Parceiro -->
+        <div class="mt-12">
+            <a href="https://wa.me/5551993668728?text=Olá, gostaria de cadastrar minha empresa gratuitamente no portal Auto Guincho." target="_blank" class="inline-flex items-center gap-2 text-gray-400 hover:text-gold border border-gray-800 hover:border-gold px-6 py-3 rounded-full transition-all text-sm font-bold bg-black/20">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                quero cadastrar minha empresa gratuitamente
+            </a>
+        </div>
+
     </div>
 </main>
 
-<footer class="py-8 bg-black/50 text-center text-sm text-gray-600 border-t border-gray-800 mt-auto">
-    <p>&copy; 2026 Auto Guincho. Diretório de Profissionais de Socorro.</p>
+<footer class="py-12 bg-black/50 text-center text-sm text-gray-500 border-t border-gray-800 mt-auto">
+    <div class="max-w-6xl mx-auto px-4">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12 text-left border-b border-gray-800 pb-12">
+            <div class="col-span-2 md:col-span-1">
+                <a href="/" class="text-xl font-black tracking-tighter text-white block mb-4">Auto<span class="text-gold">Guincho</span></a>
+                <p class="text-gray-500 text-xs">O maior ecossistema de socorro automotivo do Brasil. Conectando você direto ao prestador, sem taxas e sem burocracia.</p>
+            </div>
+            <div class="col-span-2 md:col-span-3">
+                <p class="text-[10px] uppercase tracking-widest text-gray-400 font-bold mb-6">Todos os Serviços</p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-2">
+                    
+                        <a href="/acessorios-e-implementos" class="text-gray-500 hover:text-gold transition-colors text-xs flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 bg-gray-800 rounded-full group-hover:bg-gold"></span>
+                            Acessórios e Implementos
+                        </a>
+                    
+                        <a href="/acessorios-e-implementos-fabrica-de-plataforma" class="text-gray-500 hover:text-gold transition-colors text-xs flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 bg-gray-800 rounded-full group-hover:bg-gold"></span>
+                            Acessórios e Implementos, Fábrica de Plataforma
+                        </a>
+                    
+                        <a href="/auto-eletrica" class="text-gray-500 hover:text-gold transition-colors text-xs flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 bg-gray-800 rounded-full group-hover:bg-gold"></span>
+                            Auto Elétrica
+                        </a>
+                    
+                        <a href="/auto-pecas" class="text-gray-500 hover:text-gold transition-colors text-xs flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 bg-gray-800 rounded-full group-hover:bg-gold"></span>
+                            Auto Peças
+                        </a>
+                    
+                        <a href="/borracharia" class="text-gray-500 hover:text-gold transition-colors text-xs flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 bg-gray-800 rounded-full group-hover:bg-gold"></span>
+                            Borracharia
+                        </a>
+                    
+                        <a href="/caminhao-guindaste-articulado-munck" class="text-gray-500 hover:text-gold transition-colors text-xs flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 bg-gray-800 rounded-full group-hover:bg-gold"></span>
+                            Caminhão Guindaste Articulado - Munck
+                        </a>
+                    
+                        <a href="/chaveiro-24h" class="text-gray-500 hover:text-gold transition-colors text-xs flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 bg-gray-800 rounded-full group-hover:bg-gold"></span>
+                            Chaveiro
+                        </a>
+                    
+                        <a href="/fabrica-de-guindaste-articulado-munck" class="text-gray-500 hover:text-gold transition-colors text-xs flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 bg-gray-800 rounded-full group-hover:bg-gold"></span>
+                            Fábrica de Guindaste Articulado - Munck
+                        </a>
+                    
+                        <a href="/guincho-moto" class="text-gray-500 hover:text-gold transition-colors text-xs flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 bg-gray-800 rounded-full group-hover:bg-gold"></span>
+                            Guincho Moto
+                        </a>
+                    
+                        <a href="/guincho-moto-acessorios-e-implementos" class="text-gray-500 hover:text-gold transition-colors text-xs flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 bg-gray-800 rounded-full group-hover:bg-gold"></span>
+                            Guincho Moto, Acessórios e Implementos
+                        </a>
+                    
+                        <a href="/guincho-pesado-caminhao" class="text-gray-500 hover:text-gold transition-colors text-xs flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 bg-gray-800 rounded-full group-hover:bg-gold"></span>
+                            Guincho Pesado - Caminhão
+                        </a>
+                    
+                        <a href="/guincho-plataforma" class="text-gray-500 hover:text-gold transition-colors text-xs flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 bg-gray-800 rounded-full group-hover:bg-gold"></span>
+                            Guincho Plataforma
+                        </a>
+                    
+                        <a href="/mecanica-diesel" class="text-gray-500 hover:text-gold transition-colors text-xs flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 bg-gray-800 rounded-full group-hover:bg-gold"></span>
+                            Mecanica Diesel
+                        </a>
+                    
+                        <a href="/mecanica-rapida" class="text-gray-500 hover:text-gold transition-colors text-xs flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 bg-gray-800 rounded-full group-hover:bg-gold"></span>
+                            Mecânica Automotiva
+                        </a>
+                    
+                        <a href="/moto-pecas" class="text-gray-500 hover:text-gold transition-colors text-xs flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 bg-gray-800 rounded-full group-hover:bg-gold"></span>
+                            Moto Peças
+                        </a>
+                    
+                        <a href="/retificadora" class="text-gray-500 hover:text-gold transition-colors text-xs flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 bg-gray-800 rounded-full group-hover:bg-gold"></span>
+                            Retificadora
+                        </a>
+                    
+                </div>
+            </div>
+        </div>
+        <p class="mb-2 font-bold uppercase tracking-widest text-gray-700">Diretório Oficial de Profissionais</p>
+        <p>&copy; 2026 Auto Guincho. Desenvolvido no ecossistema de performance | Corpo Digital
+        </p>
+    </div>
 </footer>
 
 <script>
@@ -140,7 +485,6 @@
         }, 300);
     });
 
-    // Fechar ao clicar fora
     document.addEventListener('click', function(e) {
         if (e.target !== cityInput && e.target !== autocompleteList) {
             autocompleteList.classList.add('hidden');
