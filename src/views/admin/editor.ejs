@@ -21,6 +21,17 @@
           <h3 class="text-base font-semibold leading-6 text-gray-900">Perfil Comercial</h3>
           <p class="mt-1 max-w-2xl text-sm text-gray-500">A identidade visual no portal baseia-se nesta seção principal.</p>
         </div>
+
+        <!-- Status Ativo -->
+        <div class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:py-6">
+          <label for="is_active" class="block text-sm font-medium leading-6 text-gray-900 sm:pt-1.5">Status do Parceiro</label>
+          <div class="mt-2 sm:col-span-2 sm:mt-0 flex items-center">
+            <input id="is_active" name="is_active" type="checkbox" value="1" 
+              <%= typeof partner !== 'undefined' && partner.is_active ? 'checked' : (typeof partner === 'undefined' ? 'checked' : '') %>
+              class="h-4 w-4 rounded border-gray-300 text-gray-900 focus:ring-gray-900">
+            <label for="is_active" class="ml-3 block text-sm text-gray-700">Ativo no portal (visível nas buscas)</label>
+          </div>
+        </div>
   
         <div class="space-y-6 sm:space-y-5">
           <div class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:py-6">
@@ -43,18 +54,34 @@
           </div>
 
           <div class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:py-6">
-            <label for="whatsapp_number" class="block text-sm font-medium leading-6 text-gray-900 sm:pt-1.5">WhatsApp (DDI+DDD+Numero)</label>
-            <div class="mt-2 sm:col-span-2 sm:mt-0">
-              <input type="text" name="whatsapp_number" id="whatsapp_number" required placeholder="5511999999999" value="<%= typeof partner !== 'undefined' && partner.whatsapp_number ? partner.whatsapp_number : '' %>"
+            <label for="whatsapp_number" class="block text-sm font-medium leading-6 text-gray-900 sm:pt-1.5">WhatsApp (Ex-Tel 02)</label>
+            <div class="mt-2 sm:col-span-2 sm:mt-0 flex flex-col gap-2">
+              <input type="text" name="whatsapp_number" id="whatsapp_number" placeholder="5511999999999" value="<%= typeof partner !== 'undefined' && partner.whatsapp_number ? partner.whatsapp_number : '' %>"
                 class="block w-full max-w-lg rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-900 sm:max-w-xs sm:text-sm sm:leading-6 pl-2">
             </div>
           </div>
 
           <div class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:py-6">
-            <label for="call_number" class="block text-sm font-medium leading-6 text-gray-900 sm:pt-1.5">Telefone (Ligações)</label>
+            <label for="call_number" class="block text-sm font-medium leading-6 text-gray-900 sm:pt-1.5">Telefone Ligação (Ex-Tel 01)</label>
             <div class="mt-2 sm:col-span-2 sm:mt-0">
               <input type="text" name="call_number" id="call_number" placeholder="5511999999999" value="<%= typeof partner !== 'undefined' && partner.call_number ? partner.call_number : '' %>"
                 class="block w-full max-w-lg rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-900 sm:max-w-xs sm:text-sm sm:leading-6 pl-2">
+            </div>
+          </div>
+
+          <div class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:py-6">
+            <label for="logo_url" class="block text-sm font-medium leading-6 text-gray-900 sm:pt-1.5">URL do Logotipo</label>
+            <div class="mt-2 sm:col-span-2 sm:mt-0">
+              <input type="text" name="logo_url" id="logo_url" placeholder="https://..." value="<%= typeof partner !== 'undefined' ? partner.logo_url : '' %>"
+                class="block w-full max-w-lg rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-900 sm:text-sm sm:leading-6 pl-2">
+            </div>
+          </div>
+
+          <div class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:py-6">
+            <label for="maps_link" class="block text-sm font-medium leading-6 text-gray-900 sm:pt-1.5">Link Google Maps (Base)</label>
+            <div class="mt-2 sm:col-span-2 sm:mt-0">
+              <input type="text" name="maps_link" id="maps_link" placeholder="https://goo.gl/maps/..." value="<%= typeof partner !== 'undefined' ? partner.maps_link : '' %>"
+                class="block w-full max-w-lg rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-900 sm:text-sm sm:leading-6 pl-2">
             </div>
           </div>
   
@@ -138,8 +165,16 @@
         <div class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:py-6 border-t border-gray-200">
             <label for="gallery_images" class="block text-sm font-medium leading-6 text-gray-900 sm:pt-1.5">Galeria JSON (URLs)</label>
             <div class="mt-2 sm:col-span-2 sm:mt-0">
-              <textarea name="gallery_images" id="gallery_images" rows="3" class="block w-full max-w-lg rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-900 sm:text-sm sm:leading-6 pl-2 font-mono"><%= typeof partner !== 'undefined' ? (partner.gallery_images || '[]') : '[]' %></textarea>
-              <p class="mt-2 text-xs text-gray-500">Formato: ["url1", "url2"]. Respeita os limites do plano.</p>
+              <textarea name="gallery_images" id="gallery_images" rows="2" class="block w-full max-w-lg rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-900 sm:text-sm sm:leading-6 pl-2 font-mono text-xs"><%= typeof partner !== 'undefined' ? (partner.gallery_images || '[]') : '[]' %></textarea>
+              <p class="mt-2 text-xs text-gray-500">Formato: ["url1", "url2"].</p>
+            </div>
+        </div>
+
+        <div class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:py-6 border-t border-gray-200">
+            <label for="social_links" class="block text-sm font-medium leading-6 text-gray-900 sm:pt-1.5">Redes Sociais JSON</label>
+            <div class="mt-2 sm:col-span-2 sm:mt-0">
+              <textarea name="social_links" id="social_links" rows="2" class="block w-full max-w-lg rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-900 sm:text-sm sm:leading-6 pl-2 font-mono text-xs"><%= typeof partner !== 'undefined' ? (partner.social_links || '{}') : '{}' %></textarea>
+              <p class="mt-2 text-xs text-gray-500">Ex: {"instagram": "url", "facebook": "url"}</p>
             </div>
         </div>
 
@@ -185,7 +220,7 @@
             }
 
             debounceTimer = setTimeout(async () => {
-                const res = await fetch(`/api/cities/search?q=${query}`);
+                const res = await fetch(`/api/cities/search?q=${encodeURIComponent(query)}`);
                 const data = await res.json();
                 
                 if (data.success) {

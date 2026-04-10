@@ -4,20 +4,51 @@ const path = require('path');
 const ejs = require('ejs');
 const { marked } = require('marked');
 const db = require('../src/database');
+const plans = require('../src/config/plans');
 
 // Configurações Globais (.env)
 const BASE_URL = process.env.BASE_URL || 'https://autoguincho.com.br';
 const GTAG_ID = process.env.GTAG_ID;
+const WHATSAPP_CONTACT = process.env.WHATSAPP_CONTACT || '5551993668728';
 
 console.log('🚀 Iniciando Motor de Geração Estática (Auto Guincho SSG)...');
 
 // 0. Carregamento de Dados Globais
 const allCategories = db.prepare('SELECT * FROM categories ORDER BY name ASC').all();
 
-// 1. Diretórios de Saída
+// 1. Diretórios e Assets
 const publicDir = path.join(__dirname, '../public');
+const srcPublicDir = path.join(__dirname, '../src/public');
+
 if (!fs.existsSync(publicDir)) {
     fs.mkdirSync(publicDir, { recursive: true });
+}
+
+// Função utilitária para copiar diretórios recursivamente
+function copyDirSync(src, dest) {
+    if (!fs.existsSync(src)) return;
+    if (!fs.existsSync(dest)) fs.mkdirSync(dest, { recursive: true });
+    
+    const entries = fs.readdirSync(src, { withFileTypes: true });
+    for (const entry of entries) {
+        const srcPath = path.join(src, entry.name);
+        const destPath = path.join(dest, entry.name);
+        if (entry.isDirectory()) {
+            copyDirSync(srcPath, destPath);
+        } else {
+            fs.copyFileSync(srcPath, destPath);
+        }
+    }
+}
+
+async function copyAssets() {
+    console.log('-> Sincronizando Assets (src/public -> public)...');
+    try {
+        copyDirSync(srcPublicDir, publicDir);
+        console.log('✅ Assets sincronizados.');
+    } catch (error) {
+        console.error('❌ Erro ao copiar assets:', error);
+    }
 }
 
 // 2. Compilação da Página Home (Estática Fixa)
@@ -79,6 +110,13 @@ async function buildDirtyCities() {
                 JOIN category_listings cl ON l.id = cl.listing_id
                 JOIN listing_service_cities lsc ON l.id = lsc.listing_id
                 WHERE lsc.city_ibge_id = ? AND cl.category_id = ? AND l.is_active = 1
+                ORDER BY 
+                    CASE l.plan_level 
+                        WHEN 'elite' THEN 1 
+                        WHEN 'partner' THEN 2 
+                        ELSE 3 
+                    END,
+                    RANDOM()
             `).all(city.ibge_id, cat.id);
 
             // Coletar pro Set de Parceiros
@@ -95,6 +133,7 @@ async function buildDirtyCities() {
                     listings: listings,
                     BASE_URL,
                     GTAG_ID,
+                    WHATSAPP_CONTACT,
                     allCategories,
                     path: pathRelative,
                     title: `${cat.name} em ${city.name} - ${city.state_uf.toUpperCase()} | Auto Guincho 24h`,
@@ -131,6 +170,14 @@ async function buildAllProfiles() {
             html_text = marked.parse(partner.description_markdown);
         }
 
+        // Buscar cidades atendidas
+        const servedCities = db.prepare(`
+            SELECT c.name, c.state_uf, c.slug 
+            FROM cities c 
+            JOIN listing_service_cities lsc ON c.ibge_id = lsc.city_ibge_id 
+            WHERE lsc.listing_id = ?
+        `).all(partner.id);
+
         const pathRelative = `/perfil/${partner.slug}`;
         const perfilDir = path.join(publicDir, 'perfil', partner.slug);
         if (!fs.existsSync(perfilDir)) fs.mkdirSync(perfilDir, { recursive: true });
@@ -138,9 +185,12 @@ async function buildAllProfiles() {
         try {
             const htmlProfile = await ejs.renderFile(partnerTemplate, {
                 partner: partner,
+                servedCities: servedCities,
                 html_text: html_text,
                 BASE_URL,
                 GTAG_ID,
+                WHATSAPP_CONTACT,
+                plans,
                 allCategories,
                 path: pathRelative,
                 title: `${partner.company_name} | Perfil Profissional - Auto Guincho`,
@@ -202,12 +252,37 @@ async function buildCategories() {
     }
 }
 
+// 7. Pagina de Planos (Central do Parceiro)
+async function buildPlansPage() {
+    console.log('-> Gerando Página de Planos (seja-parceiro/index.html)...');
+    const plansTemplate = path.join(__dirname, '../src/views/pages/plans.ejs');
+    const plansDir = path.join(publicDir, 'seja-parceiro');
+    if (!fs.existsSync(plansDir)) fs.mkdirSync(plansDir, { recursive: true });
+
+    try {
+        const html = await ejs.renderFile(plansTemplate, {
+            BASE_URL,
+            GTAG_ID,
+            WHATSAPP_CONTACT,
+            path: '/seja-parceiro',
+            title: 'Seja um Parceiro - Planos e Gestão | Auto Guincho',
+            allCategories
+        });
+        fs.writeFileSync(path.join(plansDir, 'index.html'), html);
+        console.log('✅ Página de planos gerada.');
+    } catch (e) {
+        console.error('❌ Erro ao gerar página de planos:', e);
+    }
+}
+
 // 6. Execução Geral
 (async function run() {
+    await copyAssets();
     await buildHome();
     await buildCategories();
     await buildDirtyCities();
     await buildAllProfiles();
+    await buildPlansPage();
     console.log('🏁 Build concluído!');
     process.exit(0);
 })();

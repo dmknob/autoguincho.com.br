@@ -1,11 +1,6 @@
-const Database = require('better-sqlite3');
+const db = require('../src/database');
 const fs = require('fs');
 const path = require('path');
-require('dotenv').config();
-
-const dbFile = process.env.DB_FILE || 'data/autoguincho-v2.db';
-const dbPath = path.isAbsolute(dbFile) ? dbFile : path.join(__dirname, '../', dbFile);
-const db = new Database(dbPath);
 
 // Mapeamento de Categorias para Slugs Amigáveis (SEO/Frontend)
 const CATEGORY_SLUG_MAP = {
@@ -23,14 +18,14 @@ db.prepare('DELETE FROM categories').run();
 db.prepare('UPDATE cities SET is_dirty = 0').run();
 
 function slugify(text) {
-  if (!text) return '';
-  return text.toString().toLowerCase()
-    .normalize("NFD").replace(/[\u0300-\u036f]/g, "") 
-    .replace(/\s+/g, '-')           
-    .replace(/[^\w\-]+/g, '')       
-    .replace(/\-\-+/g, '-')         
-    .replace(/^-+/, '')             
-    .replace(/-+$/, '');            
+    if (!text) return '';
+    return text.toString().toLowerCase()
+        .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+        .replace(/\s+/g, '-')
+        .replace(/[^\w\-]+/g, '')
+        .replace(/\-\-+/g, '-')
+        .replace(/^-+/, '')
+        .replace(/-+$/, '');
 }
 
 const csvPath = path.join(__dirname, '../data/parceiros.csv');
@@ -63,17 +58,17 @@ db.transaction(() => {
         const nome = parts[0];
         const cidade = parts[1];
         const uf = parts[2].toUpperCase();
-        
+
         let whatsapp = parts[3] ? parts[3].replace(/[^\d]/g, '') : '';
         const categoria = parts[4];
         let planoCsv = parts[5].toLowerCase();
-        
+
         // Slug da Categoria: Usa mapeamento ou slugify padrão
         let catSlug = CATEGORY_SLUG_MAP[categoria] || slugify(categoria);
 
         // Slug do Parceiro: Prioridade total ao sugerido no CSV
-        let slug = (parts.length > 6 && parts[6].trim() !== '') 
-            ? parts[6].trim().toLowerCase() 
+        let slug = (parts.length > 6 && parts[6].trim() !== '')
+            ? parts[6].trim().toLowerCase()
             : slugify(nome) + '-' + count;
 
         // Telefone 02 (Ligações)
@@ -82,7 +77,7 @@ db.transaction(() => {
         let plano = 'basic';
         if (planoCsv.includes('partner')) plano = 'partner';
         if (planoCsv.includes('elite')) plano = 'elite';
-        
+
         // Garante que o whatsapp tenha prefixo 55
         if (whatsapp && !whatsapp.startsWith('55') && whatsapp.length >= 10) {
             whatsapp = '55' + whatsapp;
@@ -95,7 +90,7 @@ db.transaction(() => {
 
         const citySlug = slugify(cidade);
         const cityRow = getCity.get(citySlug, uf);
-        
+
         if (!cityRow) {
             console.log(`⚠️ Cidade não encontrada no IBGE: ${cidade} - ${uf}. Ignorando parceiro ${nome}.`);
             continue;
@@ -107,15 +102,17 @@ db.transaction(() => {
         const markdown = `# ${nome}\nBem-vindo ao perfil oficial na plataforma Auto Guincho. Profissional atuante na região de **${cidade} - ${uf}** prestando serviços de **${categoria}**.`;
 
         try {
-            const result = insertListing.run(nome, slug, plano, whatsapp, telefone2, markdown);
+            // Tel 01 (parts[3]) -> call_number
+            // Tel 02 (parts[7]) -> whatsapp_number
+            const result = insertListing.run(nome, slug, plano, telefone2, whatsapp, markdown);
             const listingId = result.lastInsertRowid;
 
             insertCatList.run(listingId, catRow.id);
             insertServiceCity.run(listingId, cityRow.ibge_id);
             setCityDirty.run(cityRow.ibge_id);
-            
+
             count++;
-        } catch(e) {
+        } catch (e) {
             console.log(`Erro inserindo ${nome}: ${e.message}`);
         }
     }

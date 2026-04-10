@@ -23,7 +23,47 @@
     </div>
     <% } %>
 
-    <div class="mt-8 flow-root">
+    <!-- Filtros e Busca -->
+    <div class="mt-8 bg-gray-50 border border-gray-200 rounded-lg p-4">
+        <form action="/admin" method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+            <div>
+                <label for="q" class="block text-xs font-bold text-gray-500 uppercase mb-1">Buscar por Nome</label>
+                <input type="text" name="q" id="q" value="<%= filters.q || '' %>" placeholder="Ex: Guincho do João"
+                    class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-900 sm:text-sm sm:leading-6 pl-2">
+            </div>
+            
+            <div>
+                <label for="category_id" class="block text-xs font-bold text-gray-500 uppercase mb-1">Categoria</label>
+                <select name="category_id" id="category_id" 
+                    class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-900 sm:text-sm sm:leading-6">
+                    <option value="">Todas as Categorias</option>
+                    <% categories.forEach(cat => { %>
+                        <option value="<%= cat.id %>" <%= filters.category_id == cat.id ? 'selected' : '' %>><%= cat.name %></option>
+                    <% }) %>
+                </select>
+            </div>
+
+            <div>
+                <label for="city_id" class="block text-xs font-bold text-gray-500 uppercase mb-1">Cidade Atendida</label>
+                <select name="city_id" id="city_id" 
+                    class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-900 sm:text-sm sm:leading-6">
+                    <option value="">Qualquer Cidade</option>
+                    <% citiesServiced.forEach(city => { %>
+                        <option value="<%= city.ibge_id %>" <%= filters.city_id == city.ibge_id ? 'selected' : '' %>>
+                            <%= city.name %> - <%= city.state_uf %>
+                        </option>
+                    <% }) %>
+                </select>
+            </div>
+
+            <div class="flex gap-2">
+                <button type="submit" class="flex-1 rounded-md bg-gray-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-700">Filtrar</button>
+                <a href="/admin" class="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">Limpar</a>
+            </div>
+        </form>
+    </div>
+
+    <div class="mt-4 flow-root">
       <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
         <div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
           <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg">
@@ -55,8 +95,10 @@
                             <span class="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 border border-red-200">Inativo/Rebaixado</span>
                         <% } %>
                     </td>
-                    <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                        <a href="/admin/partner/<%= l.id %>" class="text-blue-600 hover:text-blue-900">Editar</a>
+                    <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6 flex justify-end gap-3">
+                        <a href="/admin/partner/<%= l.id %>" class="text-blue-600 hover:text-blue-900 font-bold">Editar</a>
+                        <span class="text-gray-300">|</span>
+                        <a href="/perfil/<%= l.slug %>" target="_blank" class="text-green-600 hover:text-green-900 font-bold">Ver Página</a>
                     </td>
                     </tr>
                     <% }); %>

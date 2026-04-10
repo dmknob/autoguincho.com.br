@@ -1,38 +1,21 @@
-const Database = require('better-sqlite3');
+const { dbConfig } = require('../src/database');
 const fs = require('fs');
-const path = require('path');
-require('dotenv').config();
 
 async function setupDatabase() {
-  const dbFile = process.env.DB_FILE;
-  const dbPath = path.isAbsolute(dbFile) ? dbFile : path.join(__dirname, '../', dbFile);
-  const schemaPath = path.join(__dirname, '../src/database/schema.sql');
-  const dataDir = path.dirname(dbPath);
+  const { dbPath } = dbConfig;
 
   console.log('🏗️  Iniciando configuração do banco de dados...');
 
-  // Garantir que a pasta data/ existe
-  if (!fs.existsSync(dataDir)) {
-    fs.mkdirSync(dataDir, { recursive: true });
-    console.log('📁 Pasta data/ criada.');
+  // Deletar banco atual para garantir limpeza total (Wipe)
+  if (fs.existsSync(dbPath)) {
+    fs.unlinkSync(dbPath);
+    console.log(`🧹 Banco de dados anterior deletado: ${dbPath}`);
   }
 
-  // Ler o arquivo SQL
-  try {
-    const schema = fs.readFileSync(schemaPath, 'utf8');
+  // Apenas importar o banco (o schema já é executado no import do src/database/index.js)
+  require('../src/database');
 
-    // Conectar ao banco (cria se não existir)
-    const db = new Database(dbPath);
-
-    // Executar o schema
-    db.exec(schema);
-    db.close();
-
-    console.log('✅ Banco de dados inicializado com sucesso em data/autoguincho.db');
-  } catch (error) {
-    console.error('❌ Erro ao configurar o banco de dados:', error.message);
-    process.exit(1);
-  }
+  console.log(`✅ Banco de dados resetado e inicializado com sucesso.`);
 }
 
 setupDatabase();

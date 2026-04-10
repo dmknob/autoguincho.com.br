@@ -41,17 +41,36 @@
             <div
                 class="bg-gray-900 border <%= partner.plan_level === 'elite' ? 'border-gold shadow-gold/20 shadow-xl' : 'border-gray-800' %> rounded-3xl overflow-hidden">
 
-                <!-- Placeholder Capa -->
-                <div class="h-32 bg-gray-800 relative w-full overflow-hidden flex items-center justify-center">
+                <!-- Placeholder Capa / Logo Area -->
+                <div class="h-40 bg-gray-800 relative w-full overflow-hidden flex items-center justify-center p-6">
                     <div class="absolute inset-0 opacity-20"
                         style="background-image: radial-gradient(#d4af37 1px, transparent 1px); background-size: 16px 16px;">
                     </div>
+                    <% if (partner.logo_url) { %>
+                        <img src="<%= partner.logo_url %>" alt="Logotipo <%= partner.company_name %>" class="relative z-10 max-h-full max-w-full object-contain filter drop-shadow-lg">
+                    <% } else { %>
+                        <div class="relative z-10 text-gold/30 text-5xl font-black uppercase tracking-tighter">
+                            <%= partner.company_name.split(' ').map(n => n[0]).join('').slice(0,3) %>
+                        </div>
+                    <% } %>
                 </div>
 
                 <div class="p-8">
-                    <h1 class="text-3xl md:text-5xl font-extrabold text-ivory tracking-tight break-words">
-                        <%= partner.company_name %>
-                    </h1>
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <h1 class="text-3xl md:text-5xl font-extrabold text-ivory tracking-tight break-words">
+                            <%= partner.company_name %>
+                        </h1>
+                        
+                        <% if (partner.maps_link && (plans[partner.plan_level] || plans.basic).show_maps) { %>
+                            <a href="<%= partner.maps_link %>" target="_blank" class="inline-flex items-center gap-2 text-gold hover:text-white transition text-sm font-bold bg-white/5 px-4 py-2 rounded-lg border border-gold/20">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
+                                </svg>
+                                Ver no Mapa
+                            </a>
+                        <% } %>
+                    </div>
 
                     <% if(partner.plan_level==='elite' ) { %>
                         <div class="mt-4 flex flex-wrap gap-2">
@@ -64,21 +83,63 @@
                                 Selo Ouro
                             </span>
                         </div>
-                        <% } %>
+                    <% } %>
 
-                            <div class="mt-8 flex flex-col md:flex-row gap-4 border-t border-gray-800 pt-8">
-                                <a href="https://wa.me/<%= partner.whatsapp_number %>?text=Olá,%20vi%20seu%20contato%20no%20Auto%20Guincho."
-                                    target="_blank"
-                                    class="flex-1 flex justify-center items-center py-4 px-6 rounded-xl font-bold text-lg text-white bg-green-600 hover:bg-green-700 transition shadow-[0_0_15px_rgba(22,163,74,0.4)]">
-                                    Chamar no WhatsApp
-                                </a>
-                                <% if (partner.call_number) { %>
-                                    <a href="tel:<%= partner.call_number %>"
-                                        class="flex-1 flex justify-center items-center py-4 px-6 rounded-xl font-bold text-lg text-white bg-blue-600 hover:bg-blue-700 transition shadow-[0_0_15px_rgba(37,99,235,0.4)]">
-                                        Ligar Agora
+                    <!-- Cidades Atendidas Section -->
+                    <% if (locals.servedCities && servedCities.length > 0) { %>
+                        <div class="mt-6">
+                            <h2 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3">Cidades de Atuação</h2>
+                            <div class="flex flex-wrap gap-2">
+                                <% servedCities.slice(0, 20).forEach(city => { %>
+                                    <a href="<%= BASE_URL %>/guincho-plataforma/<%= city.state_uf.toLowerCase() %>/<%= city.slug %>" class="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-xs text-gray-400 hover:border-gold/50 hover:text-gold transition">
+                                        <%= city.name %> - <%= city.state_uf %>
                                     </a>
-                                    <% } %>
+                                <% }) %>
                             </div>
+                        </div>
+                    <% } %>
+
+                    <div class="mt-8 flex flex-col md:flex-row gap-4 border-t border-gray-800 pt-8">
+                        <% if (partner.whatsapp_number) { %>
+                            <a href="https://wa.me/<%= partner.whatsapp_number %>?text=Olá,%20vi%20seu%20contato%20no%20Auto%20Guincho."
+                                target="_blank"
+                                class="flex-1 flex justify-center items-center py-4 px-6 rounded-xl font-bold text-lg text-white bg-green-600 hover:bg-green-700 transition shadow-[0_0_15px_rgba(22,163,74,0.4)]">
+                                Chamar no WhatsApp
+                            </a>
+                        <% } %>
+                        
+                        <% if (partner.call_number) { %>
+                            <a href="tel:<%= partner.call_number %>"
+                                class="flex-1 flex justify-center items-center py-4 px-6 rounded-xl font-bold text-lg text-white bg-slate-800 hover:bg-slate-700 transition border border-slate-700">
+                                Ligar Agora
+                            </a>
+                        <% } %>
+                    </div>
+
+                    <!-- Redes Sociais Section (Plan Elite Only) -->
+                    <% 
+                        let socials = {};
+                        try { socials = JSON.parse(partner.social_links || '{}'); } catch(e) {}
+                        if (Object.keys(socials).length > 0 && (plans[partner.plan_level] || plans.basic).show_social) {
+                    %>
+                        <div class="mt-6 flex justify-center gap-4 border-t border-gray-800 pt-6">
+                            <% if (socials.instagram) { %>
+                                <a href="<%= socials.instagram %>" target="_blank" class="text-gray-400 hover:text-gold transition flex items-center gap-1 text-sm font-medium">
+                                    Instagram
+                                </a>
+                            <% } %>
+                            <% if (socials.facebook) { %>
+                                <a href="<%= socials.facebook %>" target="_blank" class="text-gray-400 hover:text-gold transition flex items-center gap-1 text-sm font-medium">
+                                    Facebook
+                                </a>
+                            <% } %>
+                            <% if (socials.website) { %>
+                                <a href="<%= socials.website %>" target="_blank" class="text-gray-400 hover:text-gold transition flex items-center gap-1 text-sm font-medium">
+                                    Website
+                                </a>
+                            <% } %>
+                        </div>
+                    <% } %>
                 </div>
             </div>
 
@@ -86,9 +147,26 @@
             <div class="mt-8 bg-black/30 border border-gray-800 rounded-2xl p-8 text-gray-300 markdown-body">
                 <% if (locals.html_text) { %>
                     <%- html_text %>
-                        <% } else { %>
-                            <p>Página oficial do parceiro <%= partner.company_name %> no ecossistema Auto Guincho.</p>
-                            <% } %>
+                <% } else { %>
+                    <p>Página oficial do parceiro <%= partner.company_name %> no ecossistema Auto Guincho. Profissional qualificado para atendimento emergencial.</p>
+                <% } %>
+            </div>
+
+            <!-- Links de Utilidade e Curadoria -->
+            <div class="mt-12 pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center gap-6 text-center md:text-left">
+                <div>
+                    <p class="text-gray-400 font-medium">Informação incorreta ou não foi atendido?</p>
+                    <a href="https://wa.me/<%= WHATSAPP_CONTACT %>?text=Oi.%20Vi%20o%20perfil%20de%20<%= partner.slug %>%20no%20Auto%20Guincho%20e%20tive%20problemas%20com%20o%20contato." 
+                       target="_blank" class="text-gold hover:underline text-sm font-bold mt-1 inline-block">
+                        Avise nosso suporte pelo WhatsApp
+                    </a>
+                </div>
+                <div class="md:text-right">
+                    <p class="text-gray-400 font-medium font-serif italic text-lg">Esta empresa é sua?</p>
+                    <a href="/seja-parceiro" class="text-white hover:underline text-sm font-black bg-white/5 px-4 py-2 rounded-lg border border-white/10 mt-2 inline-block">
+                        Atualize e valide seus dados GRATUITAMENTE
+                    </a>
+                </div>
             </div>
 
         </main>

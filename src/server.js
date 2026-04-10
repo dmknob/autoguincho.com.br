@@ -79,8 +79,8 @@ app.get('/api/cities/search', (req, res) => {
     const query = req.query.q;
     if (!query) return res.status(400).json({ success: false });
 
-    // Busca preditiva
-    const cities = db.prepare("SELECT name, slug, state_uf FROM cities WHERE slug LIKE ? LIMIT 10").all(`%${query.toLowerCase()}%`);
+    // Busca preditiva (Slug ou Nome para suportar acentos)
+    const cities = db.prepare("SELECT name, slug, state_uf, ibge_id FROM cities WHERE slug LIKE ? OR name LIKE ? LIMIT 30").all(`%${query.toLowerCase()}%`, `%${query}%`);
     if (cities.length > 0) {
         res.json({ success: true, cities: cities });
     } else {
@@ -93,7 +93,7 @@ app.use('/admin', adminRoutes);
 
 // Constantes Globais para SEO/Analytics
 const BASE_URL = process.env.BASE_URL || `http://localhost:${PORT}`;
-const GTAG_ID = process.env.GTAG_ID || 'G-XXXXXXXXXX';
+const GTAG_ID = process.env.GTAG_ID;
 
 // Servir o Frontend SSG gerado apenas em ambiente de DEV (Para testes locais)
 if (process.env.NODE_ENV !== 'production') {
@@ -102,15 +102,42 @@ if (process.env.NODE_ENV !== 'production') {
     // FALLBACK DINÂMICO (SSR) - Evita "Cannot GET" se o arquivo estático não existir
     console.log('🌈 [DEV MODE] Fallback Dinâmico Ativado.');
 
+    // Rota: Seja Parceiro (Planos e Gestão)
+    app.get('/seja-parceiro', (req, res) => {
+        res.render('pages/plans', {
+            layout: false,
+            BASE_URL,
+            GTAG_ID,
+            WHATSAPP_CONTACT,
+            path: '/seja-parceiro',
+            title: 'Seja um Parceiro - Planos e Gestão | Auto Guincho',
+            allCategories
+        });
+    });
+
     // Rota para Perfis
     app.get('/perfil/:slug', (req, res, next) => {
-        const partner = db.prepare('SELECT * FROM listings WHERE slug = ? AND is_active = 1').get(req.params.slug);
+        const { slug } = req.params;
+
+        // Ignorar requisições que pareçam arquivos estáticos
+        if (slug.includes('.')) return next();
+
+        const partner = db.prepare('SELECT * FROM listings WHERE slug = ? AND is_active = 1').get(slug);
         if (!partner) return next();
+
+        // Buscar cidades atendidas
+        const servedCities = db.prepare(`
+            SELECT c.name, c.state_uf, c.slug 
+            FROM cities c 
+            JOIN listing_service_cities lsc ON c.ibge_id = lsc.city_ibge_id 
+            WHERE lsc.listing_id = ?
+        `).all(partner.id);
 
         const html_text = partner.description_markdown ? marked.parse(partner.description_markdown) : "";
         res.render('pages/partner', {
-            layout: false, // Usar o <head> do próprio arquivo, não o admin-layout
+            layout: false,
             partner: partner,
+            servedCities: servedCities,
             html_text: html_text,
             BASE_URL,
             GTAG_ID,
@@ -122,8 +149,12 @@ if (process.env.NODE_ENV !== 'production') {
     // Rota para Categorias (Nível 1) - Ex: /borracharia
     app.get('/:catSlug', (req, res, next) => {
         const { catSlug } = req.params;
+
+        // Ignorar requisições que pareçam arquivos estáticos (evita buscas inúteis por favicon.ico, etc)
+        if (catSlug.includes('.')) return next();
+
         const category = db.prepare('SELECT * FROM categories WHERE slug = ?').get(catSlug);
-        
+
         if (!category) return next();
 
         // Buscar cidades que possuem prestadores nesta categoria
@@ -157,6 +188,9 @@ if (process.env.NODE_ENV !== 'production') {
     app.get('/:catSlug/:uf/:citySlug', (req, res, next) => {
         const { catSlug, uf, citySlug } = req.params;
 
+        // Ignorar requisições que pareçam arquivos estáticos
+        if (catSlug.includes('.') || citySlug.includes('.')) return next();
+
         const category = db.prepare('SELECT * FROM categories WHERE slug = ?').get(catSlug);
         const city = db.prepare('SELECT * FROM cities WHERE slug = ? AND state_uf = ?').get(citySlug, uf.toUpperCase());
 
@@ -167,6 +201,13 @@ if (process.env.NODE_ENV !== 'production') {
             JOIN category_listings cl ON l.id = cl.listing_id
             JOIN listing_service_cities lsc ON l.id = lsc.listing_id
             WHERE lsc.city_ibge_id = ? AND cl.category_id = ? AND l.is_active = 1
+            ORDER BY 
+                CASE l.plan_level 
+                    WHEN 'elite' THEN 1 
+                    WHEN 'partner' THEN 2 
+                    ELSE 3 
+                END,
+                RANDOM()
         `).all(city.ibge_id, category.id);
 
         res.render('pages/city', {

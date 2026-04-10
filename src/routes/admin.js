@@ -36,8 +36,47 @@ router.get('/logout', (req, res) => {
 
 // --- DASHBOARD ---
 router.get('/', (req, res) => {
-    // Buscar todos parceiros
-    const listings = db.prepare('SELECT id, company_name, plan_level, last_renewal_date, is_active FROM listings ORDER BY created_at DESC').all();
+    const { q, category_id, city_id } = req.query;
+    let query = `
+        SELECT DISTINCT l.id, l.company_name, l.slug, l.plan_level, l.last_renewal_date, l.is_active 
+        FROM listings l 
+    `;
+    let params = [];
+    let conditions = [];
+
+    if (category_id) {
+        query += ` JOIN category_listings cl ON l.id = cl.listing_id `;
+        conditions.push(`cl.category_id = ?`);
+        params.push(category_id);
+    }
+
+    if (city_id) {
+        query += ` JOIN listing_service_cities lsc ON l.id = lsc.listing_id `;
+        conditions.push(`lsc.city_ibge_id = ?`);
+        params.push(city_id);
+    }
+
+    if (q) {
+        conditions.push(`l.company_name LIKE ?`);
+        params.push(`%${q}%`);
+    }
+
+    if (conditions.length > 0) {
+        query += ` WHERE ` + conditions.join(' AND ');
+    }
+
+    query += ` ORDER BY l.company_name ASC `;
+
+    const listings = db.prepare(query).all(...params);
+
+    // Dados para os filtros
+    const categories = db.prepare('SELECT id, name FROM categories ORDER BY name ASC').all();
+    const citiesServiced = db.prepare(`
+        SELECT DISTINCT c.ibge_id, c.name, c.state_uf 
+        FROM cities c 
+        JOIN listing_service_cities lsc ON c.ibge_id = lsc.city_ibge_id 
+        ORDER BY c.name ASC
+    `).all();
 
     // Contar cidades sujas para ver no botão de Rebuild
     const dirtyCount = db.prepare('SELECT COUNT(*) as count FROM cities WHERE is_dirty = 1').get().count;
@@ -45,7 +84,10 @@ router.get('/', (req, res) => {
     res.render('admin/dashboard', {
         title: 'Dashboard - Auto Guincho',
         listings,
-        dirtyCount
+        categories,
+        citiesServiced,
+        dirtyCount,
+        filters: { q, category_id, city_id }
     });
 });
 
@@ -105,20 +147,24 @@ router.get('/partner/:id', (req, res) => {
 });
 
 router.post('/partner/save', (req, res) => {
-    const { id, company_name, slug, plan_level, whatsapp_number, call_number, description_markdown, category_ids, city_ids, gallery_images } = req.body;
+    const { id, company_name, slug, plan_level, whatsapp_number, call_number, logo_url, maps_link, social_links, is_active, description_markdown, category_ids, city_ids, gallery_images } = req.body;
 
+    const cleanPlanLevel = (plan_level || 'basic').trim();
     const safeSlug = slug ? slug.trim().toLowerCase() : company_name.trim().toLowerCase().replace(/\s+/g, '-');
     const safeWhatsapp = whatsapp_number ? whatsapp_number.replace(/\D/g, '') : '';
     const safeCallNumber = call_number ? call_number.replace(/\D/g, '') : '';
+    const safeSocial = social_links ? (typeof social_links === 'string' ? social_links : JSON.stringify(social_links)) : '{}';
+    const safeIsActive = (Array.isArray(is_active) ? is_active.includes('1') : is_active === '1') ? 1 : 0;
 
     // Enforçar Regras de Plano
-    const planConfig = plans[plan_level] || plans.basic;
+    const planConfig = plans[cleanPlanLevel] || plans.basic;
     
     // Truncar cidades pelo limite do plano
     let finalCityIds = [];
     if (city_ids) {
         const rawIds = Array.isArray(city_ids) ? city_ids : [city_ids];
-        finalCityIds = rawIds.slice(0, planConfig.max_cities);
+        const uniqueIds = [...new Set(rawIds.map(Number).filter(id => !isNaN(id) && id > 0))];
+        finalCityIds = uniqueIds.slice(0, planConfig.max_cities);
     }
 
     // Processar Galeria (Garantir que seja JSON válido e respeite limites)
@@ -137,17 +183,22 @@ router.post('/partner/save', (req, res) => {
     let listingId = id;
 
     const saveAction = db.transaction(() => {
-        // Capturar cidades antigas para garantir rebuild das que forem removidas
-        const oldCities = db.prepare('SELECT city_ibge_id FROM listing_service_cities WHERE listing_id = ?').all(listingId).map(c => c.city_ibge_id);
+        // Capturar cidades antigas para garantir rebuild das que forem removidas (Proteção contra undefined)
+        let oldCities = [];
+        if (listingId) {
+            oldCities = db.prepare('SELECT city_ibge_id FROM listing_service_cities WHERE listing_id = ?').all(listingId)
+                          .map(c => c.city_ibge_id)
+                          .filter(id => id && !isNaN(id));
+        }
 
         if (id) {
             // Atualiza
-            db.prepare('UPDATE listings SET company_name = ?, slug = ?, plan_level = ?, whatsapp_number = ?, call_number = ?, description_markdown = ?, gallery_images = ?, is_dirty = 1 WHERE id = ?')
-              .run(company_name, safeSlug, plan_level, safeWhatsapp, safeCallNumber, description_markdown, finalGallery, id);
+            db.prepare('UPDATE listings SET company_name = ?, slug = ?, plan_level = ?, whatsapp_number = ?, call_number = ?, logo_url = ?, maps_link = ?, social_links = ?, is_active = ?, description_markdown = ?, gallery_images = ?, is_dirty = 1 WHERE id = ?')
+              .run(company_name, safeSlug, cleanPlanLevel, safeWhatsapp, safeCallNumber, logo_url, maps_link, safeSocial, safeIsActive, description_markdown, finalGallery, id);
         } else {
             // Insere
-            const result = db.prepare('INSERT INTO listings (company_name, slug, plan_level, whatsapp_number, call_number, description_markdown, gallery_images, is_dirty) VALUES (?, ?, ?, ?, ?, ?, ?, 1)')
-                             .run(company_name, safeSlug, plan_level, safeWhatsapp, safeCallNumber, description_markdown, finalGallery);
+            const result = db.prepare('INSERT INTO listings (company_name, slug, plan_level, whatsapp_number, call_number, logo_url, maps_link, social_links, is_active, description_markdown, gallery_images, is_dirty) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)')
+                             .run(company_name, safeSlug, cleanPlanLevel, safeWhatsapp, safeCallNumber, logo_url, maps_link, safeSocial, safeIsActive, description_markdown, finalGallery);
             listingId = result.lastInsertRowid;
         }
 
@@ -168,8 +219,8 @@ router.post('/partner/save', (req, res) => {
             if (cityId) insertCityStmt.run(listingId, cityId);
         }
 
-        // Marcar todas as cidades vinculadas (antigas e novas) como sujas para rebuild
-        const allAffectedCities = [...new Set([...oldCities, ...finalCityIds])];
+        // Marcar todas as cidades vinculadas (antigas e novas) como sujas para rebuild (Filtro para evitar 'undefined' no SQL)
+        const allAffectedCities = [...new Set([...oldCities, ...finalCityIds])].filter(cid => cid && !isNaN(cid));
         if (allAffectedCities.length > 0) {
             const placeholders = allAffectedCities.map(() => '?').join(',');
             db.prepare(`UPDATE cities SET is_dirty = 1 WHERE ibge_id IN (${placeholders})`).run(...allAffectedCities);

@@ -8,6 +8,7 @@ module.exports = {
         max_photos: 0,
         requires_logo: false,
         show_social: false,
+        show_maps: false,
         name: 'Básico'
     },
     partner: {
@@ -15,6 +16,7 @@ module.exports = {
         max_photos: 3,
         requires_logo: true,
         show_social: false,
+        show_maps: false,
         name: 'Intermediário'
     },
     elite: {
@@ -22,6 +24,7 @@ module.exports = {
         max_photos: 10,
         requires_logo: true,
         show_social: true,
+        show_maps: true,
         name: 'Elite'
     }
 };
