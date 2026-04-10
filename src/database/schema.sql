@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS listings (
   company_name TEXT NOT NULL, 
   slug TEXT UNIQUE NOT NULL, -- Usado na Vanity URL /perfil/slug
   plan_level TEXT DEFAULT 'basic', -- 'basic', 'partner', 'elite'
-   whatsapp_number TEXT,  
+  whatsapp_number TEXT,  
   call_number TEXT,
   description_markdown TEXT,  -- Texto do painel Admin
   logo_url TEXT,

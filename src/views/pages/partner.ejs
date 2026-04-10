@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <%- include('../partials/head') %>
-    
-    <!-- SEO: JSON-LD @graph (Breadcrumbs + ProfessionalService) -->
-    <script type="application/ld+json">
+
+        <!-- SEO: JSON-LD @graph (Breadcrumbs + ProfessionalService) -->
+        <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@graph": [
@@ -29,61 +30,71 @@
     }
     </script>
 </head>
+
 <body class="bg-navy font-sans text-ivory min-h-screen flex flex-col">
 
-<%- include('../partials/header') %>
+    <%- include('../partials/header') %>
 
-<main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 flex-grow w-full">
-    
-    <!-- Hero Box do Perfil -->
-    <div class="bg-gray-900 border <%= partner.plan_level === 'elite' ? 'border-gold shadow-gold/20 shadow-xl' : 'border-gray-800' %> rounded-3xl overflow-hidden">
-        
-        <!-- Placeholder Capa -->
-        <div class="h-32 bg-gray-800 relative w-full overflow-hidden flex items-center justify-center">
-            <div class="absolute inset-0 opacity-20" style="background-image: radial-gradient(#d4af37 1px, transparent 1px); background-size: 16px 16px;"></div>
-        </div>
+        <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 flex-grow w-full">
 
-        <div class="p-8">
-            <h1 class="text-3xl md:text-5xl font-extrabold text-ivory tracking-tight break-words">
-                <%= partner.company_name %>
-            </h1>
-            
-            <% if(partner.plan_level === 'elite') { %>
-                <div class="mt-4 flex flex-wrap gap-2">
-                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-black bg-gold text-black uppercase tracking-widest">
-                        Selado Auto Guincho
-                    </span>
-                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-black bg-gray-800 text-gold uppercase tracking-widest border border-gold">
-                        Selo Ouro
-                    </span>
+            <!-- Hero Box do Perfil -->
+            <div
+                class="bg-gray-900 border <%= partner.plan_level === 'elite' ? 'border-gold shadow-gold/20 shadow-xl' : 'border-gray-800' %> rounded-3xl overflow-hidden">
+
+                <!-- Placeholder Capa -->
+                <div class="h-32 bg-gray-800 relative w-full overflow-hidden flex items-center justify-center">
+                    <div class="absolute inset-0 opacity-20"
+                        style="background-image: radial-gradient(#d4af37 1px, transparent 1px); background-size: 16px 16px;">
+                    </div>
                 </div>
-            <% } %>
 
-            <div class="mt-8 flex flex-col md:flex-row gap-4 border-t border-gray-800 pt-8">
-                <a href="https://wa.me/<%= partner.whatsapp_number %>" target="_blank" class="flex-1 flex justify-center items-center py-4 px-6 rounded-xl font-bold text-lg text-white bg-green-600 hover:bg-green-700 transition shadow-[0_0_15px_rgba(22,163,74,0.4)]">
-                    Chamar no WhatsApp
-                </a>
-                <% if (partner.call_number) { %>
-                    <a href="tel:<%= partner.call_number %>" class="flex-1 flex justify-center items-center py-4 px-6 rounded-xl font-bold text-lg text-white bg-blue-600 hover:bg-blue-700 transition shadow-[0_0_15px_rgba(37,99,235,0.4)]">
-                        Ligar Agora
-                    </a>
-                <% } %>
+                <div class="p-8">
+                    <h1 class="text-3xl md:text-5xl font-extrabold text-ivory tracking-tight break-words">
+                        <%= partner.company_name %>
+                    </h1>
+
+                    <% if(partner.plan_level==='elite' ) { %>
+                        <div class="mt-4 flex flex-wrap gap-2">
+                            <span
+                                class="inline-flex items-center px-3 py-1 rounded-full text-xs font-black bg-gold text-black uppercase tracking-widest">
+                                Selado Auto Guincho
+                            </span>
+                            <span
+                                class="inline-flex items-center px-3 py-1 rounded-full text-xs font-black bg-gray-800 text-gold uppercase tracking-widest border border-gold">
+                                Selo Ouro
+                            </span>
+                        </div>
+                        <% } %>
+
+                            <div class="mt-8 flex flex-col md:flex-row gap-4 border-t border-gray-800 pt-8">
+                                <a href="https://wa.me/<%= partner.whatsapp_number %>?text=Olá,%20vi%20seu%20contato%20no%20Auto%20Guincho."
+                                    target="_blank"
+                                    class="flex-1 flex justify-center items-center py-4 px-6 rounded-xl font-bold text-lg text-white bg-green-600 hover:bg-green-700 transition shadow-[0_0_15px_rgba(22,163,74,0.4)]">
+                                    Chamar no WhatsApp
+                                </a>
+                                <% if (partner.call_number) { %>
+                                    <a href="tel:<%= partner.call_number %>"
+                                        class="flex-1 flex justify-center items-center py-4 px-6 rounded-xl font-bold text-lg text-white bg-blue-600 hover:bg-blue-700 transition shadow-[0_0_15px_rgba(37,99,235,0.4)]">
+                                        Ligar Agora
+                                    </a>
+                                    <% } %>
+                            </div>
+                </div>
             </div>
-        </div>
-    </div>
 
-    <!-- Conteúdo Rico -->
-    <div class="mt-8 bg-black/30 border border-gray-800 rounded-2xl p-8 text-gray-300 markdown-body">
-        <% if (locals.html_text) { %>
-            <%- html_text %>
-        <% } else { %>
-            <p>Página oficial do parceiro <%= partner.company_name %> no ecossistema Auto Guincho.</p>
-        <% } %>
-    </div>
+            <!-- Conteúdo Rico -->
+            <div class="mt-8 bg-black/30 border border-gray-800 rounded-2xl p-8 text-gray-300 markdown-body">
+                <% if (locals.html_text) { %>
+                    <%- html_text %>
+                        <% } else { %>
+                            <p>Página oficial do parceiro <%= partner.company_name %> no ecossistema Auto Guincho.</p>
+                            <% } %>
+            </div>
 
-</main>
+        </main>
 
-<%- include('../partials/footer') %>
+        <%- include('../partials/footer') %>
 
 </body>
+
 </html>
