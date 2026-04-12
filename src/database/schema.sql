@@ -61,3 +61,25 @@ CREATE TABLE IF NOT EXISTS listing_tags (
   tag_id INTEGER,
   PRIMARY KEY (listing_id, tag_id)
 );
+
+-- Analytics Próprio da Corpo Digital (Gravação Segura s/ LGPD)
+CREATE TABLE IF NOT EXISTS analytics_events (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    event_type TEXT NOT NULL,        -- 'page_view' | 'cta_click' | 'form_submit'
+    event_label TEXT,                -- 'whatsapp' | 'ligar' 
+    page_path TEXT NOT NULL,         -- '/rs/novo-hamburgo/guincho-plataforma'
+    referrer TEXT,                   -- 'https://google.com' | NULL
+    ip_hash TEXT NOT NULL,           -- SHA-256(ip + salt_diario) — jamais gravar IP cru
+    user_agent TEXT,                 -- Navigator UA 
+    geo_country TEXT,                -- 'BR' 
+    geo_region TEXT,                 -- 'RS'
+    geo_city TEXT,                   -- 'Novo Hamburgo'
+    entity_type TEXT,                -- 'listing' | 'category' | 'city'
+    entity_id INTEGER,               -- FK para a entidade
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Índices Recomendados
+CREATE INDEX IF NOT EXISTS idx_analytics_type_date ON analytics_events(event_type, created_at);
+CREATE INDEX IF NOT EXISTS idx_analytics_entity ON analytics_events(entity_type, entity_id);
+CREATE INDEX IF NOT EXISTS idx_analytics_geo ON analytics_events(geo_country, geo_region, geo_city);

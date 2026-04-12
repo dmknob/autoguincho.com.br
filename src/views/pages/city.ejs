@@ -85,7 +85,7 @@
 
                                             <div class="px-5 pb-5 mt-auto flex flex-col gap-2">
                                                 <% if (l.whatsapp_number) { %>
-                                                    <a href="https://wa.me/<%= l.whatsapp_number %>?text=Olá,%20vi%20seu%20contato%20no%20Auto%20Guincho."
+                                                    <a href="/r/wa/<%= l.id %>"
                                                         target="_blank"
                                                         class="flex justify-center items-center py-3 px-4 rounded-xl font-bold text-white bg-green-600 hover:bg-green-700 transition shadow-lg shadow-green-900/20">
                                                         Chamar no WhatsApp
@@ -93,7 +93,7 @@
                                                 <% } %>
 
                                                 <% if (l.call_number) { %>
-                                                    <a href="tel:<%= l.call_number %>"
+                                                    <a href="/r/call/<%= l.id %>"
                                                         class="flex justify-center items-center py-3 px-4 rounded-xl font-bold text-white bg-slate-800 hover:bg-slate-700 transition border border-slate-700">
                                                         Ligar Agora
                                                     </a>

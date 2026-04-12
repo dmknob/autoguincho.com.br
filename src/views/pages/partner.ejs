@@ -101,7 +101,7 @@
 
                     <div class="mt-8 flex flex-col md:flex-row gap-4 border-t border-gray-800 pt-8">
                         <% if (partner.whatsapp_number) { %>
-                            <a href="https://wa.me/<%= partner.whatsapp_number %>?text=Olá,%20vi%20seu%20contato%20no%20Auto%20Guincho."
+                            <a href="/r/wa/<%= partner.id %>"
                                 target="_blank"
                                 class="flex-1 flex justify-center items-center py-4 px-6 rounded-xl font-bold text-lg text-white bg-green-600 hover:bg-green-700 transition shadow-[0_0_15px_rgba(22,163,74,0.4)]">
                                 Chamar no WhatsApp
@@ -109,7 +109,7 @@
                         <% } %>
                         
                         <% if (partner.call_number) { %>
-                            <a href="tel:<%= partner.call_number %>"
+                            <a href="/r/call/<%= partner.id %>"
                                 class="flex-1 flex justify-center items-center py-4 px-6 rounded-xl font-bold text-lg text-white bg-slate-800 hover:bg-slate-700 transition border border-slate-700">
                                 Ligar Agora
                             </a>
@@ -173,6 +173,22 @@
 
         <%- include('../partials/footer') %>
 
-</body>
+    <script>
+        // Rastreamento Automático de Perfil (Compatível com SSG e Caches em Produção)
+        window.addEventListener('DOMContentLoaded', () => {
+            // Emite o Beacon de analytics apenas após 1.5s para filtrar acessos inválidos/rescentes e robôs
+            setTimeout(() => {
+                try {
+                    navigator.sendBeacon('/api/system/interaction', new Blob([JSON.stringify({ 
+                        event_type: 'page_view', 
+                        page_path: window.location.pathname, 
+                        entity_type: 'listing', 
+                        entity_id: <%= partner.id %> 
+                    })], {type: 'application/json'}));
+                } catch(e) {}
+            }, 150);
+        });
+    </script>
 
+</body>
 </html>

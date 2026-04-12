@@ -38,7 +38,9 @@ router.get('/logout', (req, res) => {
 router.get('/', (req, res) => {
     const { q, category_id, city_id } = req.query;
     let query = `
-        SELECT DISTINCT l.id, l.company_name, l.slug, l.plan_level, l.last_renewal_date, l.is_active 
+        SELECT DISTINCT l.id, l.company_name, l.slug, l.plan_level, l.last_renewal_date, l.is_active,
+               (SELECT COUNT(*) FROM analytics_events WHERE entity_type='listing' AND entity_id=l.id AND event_type='page_view') as page_views,
+               (SELECT COUNT(*) FROM analytics_events WHERE entity_type='listing' AND entity_id=l.id AND event_type='cta_click') as leads_gerados
         FROM listings l 
     `;
     let params = [];
@@ -81,12 +83,23 @@ router.get('/', (req, res) => {
     // Contar cidades sujas para ver no botão de Rebuild
     const dirtyCount = db.prepare('SELECT COUNT(*) as count FROM cities WHERE is_dirty = 1').get().count;
 
+    // Cidades Mais buscadas (Buscas)
+    const topCities = db.prepare(`
+        SELECT event_label as city_name, COUNT(*) as searches 
+        FROM analytics_events 
+        WHERE event_type = 'search' AND event_label IS NOT NULL 
+        GROUP BY event_label 
+        ORDER BY searches DESC 
+        LIMIT 5
+    `).all();
+
     res.render('admin/dashboard', {
         title: 'Dashboard - Auto Guincho',
         listings,
         categories,
         citiesServiced,
         dirtyCount,
+        topCities,
         filters: { q, category_id, city_id }
     });
 });
@@ -109,8 +122,8 @@ router.post('/action/rebuild', (req, res) => {
 // --- EDITOR DE SERVIÇOS (CRUD) ---
 router.get('/partner/new', (req, res) => {
     const categories = db.prepare('SELECT * FROM categories').all();
-    res.render('admin/editor', { 
-        title: 'Novo Parceiro - Auto Guincho', 
+    res.render('admin/editor', {
+        title: 'Novo Parceiro - Auto Guincho',
         partner: undefined,
         categories,
         selectedCategoryIds: [],
@@ -128,7 +141,7 @@ router.get('/partner/:id', (req, res) => {
 
     const categories = db.prepare('SELECT * FROM categories').all();
     const selectedCategoryIds = db.prepare('SELECT category_id FROM category_listings WHERE listing_id = ?').all(partnerId).map(c => c.category_id);
-    
+
     // Buscar cidades vinculadas
     const selectedCities = db.prepare(`
         SELECT c.ibge_id, c.name, c.state_uf 
@@ -137,8 +150,8 @@ router.get('/partner/:id', (req, res) => {
         WHERE lsc.listing_id = ?
     `).all(partnerId);
 
-    res.render('admin/editor', { 
-        title: 'Editar Parceiro - Auto Guincho', 
+    res.render('admin/editor', {
+        title: 'Editar Parceiro - Auto Guincho',
         partner: partner,
         categories,
         selectedCategoryIds,
@@ -158,7 +171,7 @@ router.post('/partner/save', (req, res) => {
 
     // Enforçar Regras de Plano
     const planConfig = plans[cleanPlanLevel] || plans.basic;
-    
+
     // Truncar cidades pelo limite do plano
     let finalCityIds = [];
     if (city_ids) {
@@ -187,18 +200,18 @@ router.post('/partner/save', (req, res) => {
         let oldCities = [];
         if (listingId) {
             oldCities = db.prepare('SELECT city_ibge_id FROM listing_service_cities WHERE listing_id = ?').all(listingId)
-                          .map(c => c.city_ibge_id)
-                          .filter(id => id && !isNaN(id));
+                .map(c => c.city_ibge_id)
+                .filter(id => id && !isNaN(id));
         }
 
         if (id) {
             // Atualiza
             db.prepare('UPDATE listings SET company_name = ?, slug = ?, plan_level = ?, whatsapp_number = ?, call_number = ?, logo_url = ?, maps_link = ?, social_links = ?, is_active = ?, description_markdown = ?, gallery_images = ?, is_dirty = 1 WHERE id = ?')
-              .run(company_name, safeSlug, cleanPlanLevel, safeWhatsapp, safeCallNumber, logo_url, maps_link, safeSocial, safeIsActive, description_markdown, finalGallery, id);
+                .run(company_name, safeSlug, cleanPlanLevel, safeWhatsapp, safeCallNumber, logo_url, maps_link, safeSocial, safeIsActive, description_markdown, finalGallery, id);
         } else {
             // Insere
             const result = db.prepare('INSERT INTO listings (company_name, slug, plan_level, whatsapp_number, call_number, logo_url, maps_link, social_links, is_active, description_markdown, gallery_images, is_dirty) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)')
-                             .run(company_name, safeSlug, cleanPlanLevel, safeWhatsapp, safeCallNumber, logo_url, maps_link, safeSocial, safeIsActive, description_markdown, finalGallery);
+                .run(company_name, safeSlug, cleanPlanLevel, safeWhatsapp, safeCallNumber, logo_url, maps_link, safeSocial, safeIsActive, description_markdown, finalGallery);
             listingId = result.lastInsertRowid;
         }
 

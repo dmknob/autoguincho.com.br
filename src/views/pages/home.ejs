@@ -163,7 +163,7 @@
         }
     });
 
-    function executeCitySearch() {
+    async function executeCitySearch() {
         const cat = document.getElementById('category-select').value;
         const status = document.getElementById('geo-status');
         
@@ -176,9 +176,26 @@
             status.classList.add("text-red-400");
             return;
         }
+
+        // Registrar Evento de Pesquisa
+        try {
+            await fetch('/api/system/interaction', { 
+                method: 'POST', 
+                headers: {'Content-Type': 'application/json'}, 
+                body: JSON.stringify({ 
+                    event_type: 'search', 
+                    event_label: cityInput.value, 
+                    page_path: `/${cat}/${uf}/${slug}`, 
+                    entity_type: 'city' 
+                }),
+                keepalive: true
+            });
+        } catch(e) {}
         
-        // Roteador SSG Direto
-        window.location.href = `/${cat}/${uf}/${slug}`;
+        // Roteador SSG Direto com delay microscópico para garantir disparo da request no Safari/Chrome
+        setTimeout(() => {
+            window.location.href = `/${cat}/${uf}/${slug}`;
+        }, 50);
     }
 </script>
 

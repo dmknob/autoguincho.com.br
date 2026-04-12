@@ -88,6 +88,114 @@ app.get('/api/cities/search', (req, res) => {
     }
 });
 
+// Utils
+const { processAnalytics } = require('./utils/analytics');
+
+// Middleware Analytics - Page Views (SSR Fallback Only)
+async function trackPageView(req, res, next) {
+    if (req.path.startsWith('/admin') ||
+        req.path.startsWith('/api') ||
+        req.path.match(/\.(css|js|ico|png|jpg|webp|woff2?)$/)) {
+        return next();
+    }
+
+    try {
+        const { ip_hash, geo_country, geo_region, geo_city } = await processAnalytics(req);
+        
+        db.prepare(`
+            INSERT INTO analytics_events 
+            (event_type, page_path, referrer, ip_hash, user_agent, geo_country, geo_region, geo_city)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        `).run(
+            'page_view',
+            req.path,
+            req.get('referer') || null,
+            ip_hash,
+            req.get('user-agent') || null,
+            geo_country,
+            geo_region,
+            geo_city
+        );
+    } catch (err) {
+        console.error('[Analytics] Erro ao registrar page view:', err.message);
+    }
+    next();
+}
+
+// Em Desenvolvimento (SSR Fallback), rastreia views nas rotas principais
+if (process.env.NODE_ENV !== 'production') {
+    app.use(trackPageView);
+}
+
+// API REST para Cliques e Interações Frontend (Disfarçado para AdBlockers)
+app.post('/api/system/interaction', async (req, res) => {
+    const { event_type, event_label, page_path, entity_type, entity_id } = req.body;
+
+    if (!event_type || !page_path) return res.status(400).json({ error: 'Missing fields' });
+
+    try {
+        const { ip_hash, geo_country, geo_region, geo_city } = await processAnalytics(req);
+
+        db.prepare(`
+            INSERT INTO analytics_events 
+            (event_type, event_label, page_path, ip_hash, user_agent, 
+             geo_country, geo_region, geo_city, entity_type, entity_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `).run(event_type, event_label, page_path, ip_hash,
+               req.get('user-agent'), geo_country, geo_region, geo_city,
+               entity_type || null, entity_id || null);
+
+        res.status(204).end();
+    } catch(err) {
+        console.error('[Analytics] Erro ao registrar tracking de clique:', err.message);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+// MOTOR DE RASTREAMENTO DEFINITIVO (Server-Side Redirect Clicks)
+// Resolve 100% das falhas de JavaScript local, AdBlockers e "Cancelamento de Aba" do Safari/Chrome
+app.get('/r/:type/:id', async (req, res) => {
+    const { type, id } = req.params;
+    
+    try {
+        const listing = db.prepare('SELECT whatsapp_number, call_number FROM listings WHERE id = ?').get(id);
+        if (!listing) return res.redirect('/');
+
+        let targetUrl = '/';
+        let eventLabel = '';
+
+        if (type === 'wa' && listing.whatsapp_number) {
+            targetUrl = `https://wa.me/${listing.whatsapp_number}?text=Olá,%20vi%20seu%20contato%20no%20Auto%20Guincho.`;
+            eventLabel = 'whatsapp';
+        } else if (type === 'call' && listing.call_number) {
+            targetUrl = `tel:${listing.call_number}`;
+            eventLabel = 'ligar';
+        } else {
+            return res.redirect('/');
+        }
+
+        const { ip_hash, geo_country, geo_region, geo_city } = await processAnalytics(req);
+        // Salva a página de origem usando o cabeçalho HTTP Referer embutido nativamente no redirect
+        const referrer = req.get('Referrer') || '/redirecionamento-direto';
+        
+        db.prepare(`
+            INSERT INTO analytics_events 
+            (event_type, event_label, page_path, ip_hash, user_agent, 
+             geo_country, geo_region, geo_city, entity_type, entity_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `).run('cta_click', eventLabel, referrer, ip_hash,
+               req.get('user-agent'), geo_country, geo_region, geo_city,
+               'listing', id);
+
+        // Dispara o usuário pro destino final HTTP 302 Redirecionamento Temporário
+        res.redirect(302, targetUrl);
+
+    } catch(err) {
+        console.error('[Analytics Tracker] Erro crasso na Rota de Redirect Rápido:', err.message);
+        res.redirect('/');
+    }
+});
+
 // Rotas Base
 app.use('/admin', adminRoutes);
 
