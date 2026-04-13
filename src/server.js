@@ -174,18 +174,23 @@ app.get('/r/:type/:id', async (req, res) => {
             return res.redirect('/');
         }
 
-        const { ip_hash, geo_country, geo_region, geo_city } = await processAnalytics(req);
-        // Salva a página de origem usando o cabeçalho HTTP Referer embutido nativamente no redirect
-        const referrer = req.get('Referrer') || '/redirecionamento-direto';
-        
-        db.prepare(`
-            INSERT INTO analytics_events 
-            (event_type, event_label, page_path, ip_hash, user_agent, 
-             geo_country, geo_region, geo_city, entity_type, entity_id)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `).run('cta_click', eventLabel, referrer, ip_hash,
-               req.get('user-agent'), geo_country, geo_region, geo_city,
-               'listing', id);
+        const userAgent = req.get('user-agent') || '';
+        const isBot = /bot|crawler|spider|crawling|slurp/i.test(userAgent);
+
+        if (!isBot) {
+            const { ip_hash, geo_country, geo_region, geo_city } = await processAnalytics(req);
+            // Salva a página de origem usando o cabeçalho HTTP Referer embutido nativamente no redirect
+            const referrer = req.get('Referrer') || '/redirecionamento-direto';
+            
+            db.prepare(`
+                INSERT INTO analytics_events 
+                (event_type, event_label, page_path, ip_hash, user_agent, 
+                 geo_country, geo_region, geo_city, entity_type, entity_id)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            `).run('cta_click', eventLabel, referrer, ip_hash,
+                   userAgent, geo_country, geo_region, geo_city,
+                   'listing', id);
+        }
 
         // Dispara o usuário pro destino final HTTP 302 Redirecionamento Temporário
         res.redirect(302, targetUrl);

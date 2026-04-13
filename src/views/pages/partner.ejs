@@ -102,14 +102,14 @@
                     <div class="mt-8 flex flex-col md:flex-row gap-4 border-t border-gray-800 pt-8">
                         <% if (partner.whatsapp_number) { %>
                             <a href="/r/wa/<%= partner.id %>"
-                                target="_blank"
+                                target="_blank" rel="nofollow noreferrer"
                                 class="flex-1 flex justify-center items-center py-4 px-6 rounded-xl font-bold text-lg text-white bg-green-600 hover:bg-green-700 transition shadow-[0_0_15px_rgba(22,163,74,0.4)]">
                                 Chamar no WhatsApp
                             </a>
                         <% } %>
                         
                         <% if (partner.call_number) { %>
-                            <a href="/r/call/<%= partner.id %>"
+                            <a href="/r/call/<%= partner.id %>" rel="nofollow noreferrer"
                                 class="flex-1 flex justify-center items-center py-4 px-6 rounded-xl font-bold text-lg text-white bg-slate-800 hover:bg-slate-700 transition border border-slate-700">
                                 Ligar Agora
                             </a>
