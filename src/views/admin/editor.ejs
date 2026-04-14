@@ -1,268 +1,310 @@
 <div class="px-4 sm:px-6 lg:px-8 py-8">
-    <div class="md:flex md:items-center md:justify-between">
-      <div class="min-w-0 flex-1">
-        <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
-          <%= typeof partner !== 'undefined' ? 'Editar Parceiro: ' + partner.company_name : 'Cadastrar Novo Parceiro' %>
-        </h2>
-      </div>
-      <div class="mt-4 flex md:ml-4 md:mt-0">
-        <a href="/admin" class="inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">Cancelar</a>
-      </div>
+  <div class="md:flex md:items-center md:justify-between">
+    <div class="min-w-0 flex-1">
+      <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
+        <%= typeof partner !=='undefined' ? 'Editar Parceiro: ' + partner.company_name : 'Cadastrar Novo Parceiro' %>
+      </h2>
     </div>
-  
-    <form action="/admin/partner/save" method="POST" class="mt-8 space-y-8 divide-y divide-gray-200">
-      <% if (typeof partner !== 'undefined') { %>
-          <input type="hidden" name="id" value="<%= partner.id %>">
+    <div class="mt-4 flex md:ml-4 md:mt-0">
+      <a href="/admin"
+        class="inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">Cancelar</a>
+    </div>
+  </div>
+
+  <form action="/admin/partner/save" method="POST" class="mt-8 space-y-8 divide-y divide-gray-200">
+    <% if (typeof partner !=='undefined' ) { %>
+      <input type="hidden" name="id" value="<%= partner.id %>">
       <% } %>
-  
-      <!-- Informações Básicas -->
-      <div class="space-y-6 sm:space-y-5">
-        <div>
-          <h3 class="text-base font-semibold leading-6 text-gray-900">Perfil Comercial</h3>
-          <p class="mt-1 max-w-2xl text-sm text-gray-500">A identidade visual no portal baseia-se nesta seção principal.</p>
-        </div>
 
-        <!-- Status Ativo -->
-        <div class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:py-6">
-          <label for="is_active" class="block text-sm font-medium leading-6 text-gray-900 sm:pt-1.5">Status do Parceiro</label>
-          <div class="mt-2 sm:col-span-2 sm:mt-0 flex items-center">
-            <input id="is_active" name="is_active" type="checkbox" value="1" 
-              <%= typeof partner !== 'undefined' && partner.is_active ? 'checked' : (typeof partner === 'undefined' ? 'checked' : '') %>
-              class="h-4 w-4 rounded border-gray-300 text-gray-900 focus:ring-gray-900">
-            <label for="is_active" class="ml-3 block text-sm text-gray-700">Ativo no portal (visível nas buscas)</label>
-          </div>
-        </div>
-  
+        <!-- Informações Básicas -->
         <div class="space-y-6 sm:space-y-5">
+          <div>
+            <h3 class="text-base font-semibold leading-6 text-gray-900">Perfil Comercial</h3>
+            <p class="mt-1 max-w-2xl text-sm text-gray-500">A identidade visual no portal baseia-se nesta seção
+              principal.</p>
+          </div>
+
+          <!-- Status Ativo -->
           <div class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:py-6">
-            <label for="company_name" class="block text-sm font-medium leading-6 text-gray-900 sm:pt-1.5">Nome da Empresa</label>
-            <div class="mt-2 sm:col-span-2 sm:mt-0">
-              <input type="text" name="company_name" id="company_name" required value="<%= typeof partner !== 'undefined' ? partner.company_name : '' %>"
-                class="block w-full max-w-lg rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-900 sm:max-w-xs sm:text-sm sm:leading-6 pl-2">
+            <label for="is_active" class="block text-sm font-medium leading-6 text-gray-900 sm:pt-1.5">Status do
+              Parceiro</label>
+            <div class="mt-2 sm:col-span-2 sm:mt-0 flex items-center">
+              <input id="is_active" name="is_active" type="checkbox" value="1" <%=typeof partner !=='undefined' &&
+                partner.is_active ? 'checked' : (typeof partner==='undefined' ? 'checked' : '' ) %>
+              class="h-4 w-4 rounded border-gray-300 text-gray-900 focus:ring-gray-900">
+              <label for="is_active" class="ml-3 block text-sm text-gray-700">Ativo no portal (visível nas
+                buscas)</label>
             </div>
           </div>
-  
-          <div class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:py-6">
-            <label for="slug" class="block text-sm font-medium leading-6 text-gray-900 sm:pt-1.5">URL de Vaidade (Slug)</label>
-            <div class="mt-2 sm:col-span-2 sm:mt-0">
-              <div class="flex max-w-lg rounded-md shadow-sm">
-                <span class="inline-flex items-center rounded-l-md border border-r-0 border-gray-300 px-3 text-gray-500 sm:text-sm">/perfil/</span>
-                <input type="text" name="slug" id="slug" required value="<%= typeof partner !== 'undefined' ? partner.slug : '' %>"
-                  class="block w-full min-w-0 flex-1 rounded-none rounded-r-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-900 sm:text-sm sm:leading-6 pl-2">
+
+          <div class="space-y-6 sm:space-y-5">
+            <div class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:py-6">
+              <label for="company_name" class="block text-sm font-medium leading-6 text-gray-900 sm:pt-1.5">Nome da
+                Empresa</label>
+              <div class="mt-2 sm:col-span-2 sm:mt-0">
+                <input type="text" name="company_name" id="company_name" required
+                  value="<%= typeof partner !== 'undefined' ? partner.company_name : '' %>"
+                  class="block w-full max-w-lg rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-900 sm:max-w-xs sm:text-sm sm:leading-6 pl-2">
               </div>
             </div>
-          </div>
 
-          <div class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:py-6">
-            <label for="whatsapp_number" class="block text-sm font-medium leading-6 text-gray-900 sm:pt-1.5">WhatsApp (Ex-Tel 02)</label>
-            <div class="mt-2 sm:col-span-2 sm:mt-0 flex flex-col gap-2">
-              <input type="text" name="whatsapp_number" id="whatsapp_number" placeholder="5511999999999" value="<%= typeof partner !== 'undefined' && partner.whatsapp_number ? partner.whatsapp_number : '' %>"
-                class="block w-full max-w-lg rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-900 sm:max-w-xs sm:text-sm sm:leading-6 pl-2">
+            <div class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:py-6">
+              <label for="slug" class="block text-sm font-medium leading-6 text-gray-900 sm:pt-1.5">URL de Vaidade
+                (Slug)</label>
+              <div class="mt-2 sm:col-span-2 sm:mt-0">
+                <div class="flex max-w-lg rounded-md shadow-sm">
+                  <span
+                    class="inline-flex items-center rounded-l-md border border-r-0 border-gray-300 px-3 text-gray-500 sm:text-sm">/perfil/</span>
+                  <input type="text" name="slug" id="slug" required
+                    value="<%= typeof partner !== 'undefined' ? partner.slug : '' %>"
+                    class="block w-full min-w-0 flex-1 rounded-none rounded-r-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-900 sm:text-sm sm:leading-6 pl-2">
+                </div>
+              </div>
             </div>
-          </div>
 
-          <div class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:py-6">
-            <label for="call_number" class="block text-sm font-medium leading-6 text-gray-900 sm:pt-1.5">Telefone Ligação (Ex-Tel 01)</label>
-            <div class="mt-2 sm:col-span-2 sm:mt-0">
-              <input type="text" name="call_number" id="call_number" placeholder="5511999999999" value="<%= typeof partner !== 'undefined' && partner.call_number ? partner.call_number : '' %>"
-                class="block w-full max-w-lg rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-900 sm:max-w-xs sm:text-sm sm:leading-6 pl-2">
+            <div class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:py-6">
+              <label for="whatsapp_number" class="block text-sm font-medium leading-6 text-gray-900 sm:pt-1.5">WhatsApp
+                (Ex-Tel 02)</label>
+              <div class="mt-2 sm:col-span-2 sm:mt-0 flex flex-col gap-2">
+                <input type="text" name="whatsapp_number" id="whatsapp_number" placeholder="5511999999999"
+                  value="<%= typeof partner !== 'undefined' && partner.whatsapp_number ? partner.whatsapp_number : '' %>"
+                  class="block w-full max-w-lg rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-900 sm:max-w-xs sm:text-sm sm:leading-6 pl-2">
+              </div>
             </div>
-          </div>
 
-          <div class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:py-6">
-            <label for="logo_url" class="block text-sm font-medium leading-6 text-gray-900 sm:pt-1.5">URL do Logotipo</label>
-            <div class="mt-2 sm:col-span-2 sm:mt-0">
-              <input type="text" name="logo_url" id="logo_url" placeholder="https://..." value="<%= typeof partner !== 'undefined' ? partner.logo_url : '' %>"
-                class="block w-full max-w-lg rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-900 sm:text-sm sm:leading-6 pl-2">
+            <div class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:py-6">
+              <label for="call_number" class="block text-sm font-medium leading-6 text-gray-900 sm:pt-1.5">Telefone
+                Ligação (Ex-Tel 01)</label>
+              <div class="mt-2 sm:col-span-2 sm:mt-0">
+                <input type="text" name="call_number" id="call_number" placeholder="5511999999999"
+                  value="<%= typeof partner !== 'undefined' && partner.call_number ? partner.call_number : '' %>"
+                  class="block w-full max-w-lg rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-900 sm:max-w-xs sm:text-sm sm:leading-6 pl-2">
+              </div>
             </div>
-          </div>
 
-          <div class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:py-6">
-            <label for="maps_link" class="block text-sm font-medium leading-6 text-gray-900 sm:pt-1.5">Link Google Maps (Base)</label>
-            <div class="mt-2 sm:col-span-2 sm:mt-0">
-              <input type="text" name="maps_link" id="maps_link" placeholder="https://goo.gl/maps/..." value="<%= typeof partner !== 'undefined' ? partner.maps_link : '' %>"
-                class="block w-full max-w-lg rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-900 sm:text-sm sm:leading-6 pl-2">
+            <div class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:py-6">
+              <label for="logo_url" class="block text-sm font-medium leading-6 text-gray-900 sm:pt-1.5">URL do
+                Logotipo</label>
+              <div class="mt-2 sm:col-span-2 sm:mt-0">
+                <input type="text" name="logo_url" id="logo_url" placeholder="https://..."
+                  value="<%= typeof partner !== 'undefined' ? partner.logo_url : '' %>"
+                  class="block w-full max-w-lg rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-900 sm:text-sm sm:leading-6 pl-2">
+              </div>
             </div>
-          </div>
-  
-          <div class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:py-6 border-t border-gray-200">
-            <label for="plan_level" class="block text-sm font-medium leading-6 text-gray-900 sm:pt-1.5">Nível da Assinatura</label>
-            <div class="mt-2 sm:col-span-2 sm:mt-0">
-              <select id="plan_level" name="plan_level" class="block w-full max-w-lg rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-900 sm:max-w-xs sm:text-sm sm:leading-6">
-                <option value="basic" <%= typeof partner !== 'undefined' && partner.plan_level === 'basic' ? 'selected' : '' %>>Básico (Gratuito)</option>
-                <option value="partner" <%= typeof partner !== 'undefined' && partner.plan_level === 'partner' ? 'selected' : '' %>>Parceiro</option>
-                <option value="elite" <%= typeof partner !== 'undefined' && partner.plan_level === 'elite' ? 'selected' : '' %>>Elite</option>
-              </select>
-            </div>
-          </div>
 
-          <div class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:py-6 border-t border-gray-200">
-            <label class="block text-sm font-medium leading-6 text-gray-900 sm:pt-1.5">Categorias de Serviço</label>
-            <div class="mt-2 sm:col-span-2 sm:mt-0">
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <% categories.forEach(cat => { %>
-                  <div class="relative flex items-start">
-                    <div class="flex h-6 items-center">
-                      <input id="cat-<%= cat.id %>" name="category_ids" value="<%= cat.id %>" type="checkbox" 
-                        <%= selectedCategoryIds.includes(cat.id) ? 'checked' : '' %>
+            <div class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:py-6">
+              <label for="maps_link" class="block text-sm font-medium leading-6 text-gray-900 sm:pt-1.5">Link Google
+                Maps (Base)</label>
+              <div class="mt-2 sm:col-span-2 sm:mt-0">
+                <input type="text" name="maps_link" id="maps_link" placeholder="https://goo.gl/maps/..."
+                  value="<%= typeof partner !== 'undefined' ? partner.maps_link : '' %>"
+                  class="block w-full max-w-lg rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-900 sm:text-sm sm:leading-6 pl-2">
+              </div>
+            </div>
+
+            <div class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:py-6 border-t border-gray-200">
+              <label for="plan_level" class="block text-sm font-medium leading-6 text-gray-900 sm:pt-1.5">Nível da
+                Assinatura</label>
+              <div class="mt-2 sm:col-span-2 sm:mt-0">
+                <select id="plan_level" name="plan_level"
+                  class="block w-full max-w-lg rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-900 sm:max-w-xs sm:text-sm sm:leading-6">
+                  <option value="basic" <%=typeof partner !=='undefined' && partner.plan_level==='basic' ? 'selected'
+                    : '' %>>Básico (Gratuito)</option>
+                  <option value="partner" <%=typeof partner !=='undefined' && partner.plan_level==='partner'
+                    ? 'selected' : '' %>>Parceiro</option>
+                  <option value="elite" <%=typeof partner !=='undefined' && partner.plan_level==='elite' ? 'selected'
+                    : '' %>>Elite</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:py-6 border-t border-gray-200">
+              <label class="block text-sm font-medium leading-6 text-gray-900 sm:pt-1.5">Categorias de Serviço</label>
+              <div class="mt-2 sm:col-span-2 sm:mt-0">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <% categories.forEach(cat=> { %>
+                    <div class="relative flex items-start">
+                      <div class="flex h-6 items-center">
+                        <input id="cat-<%= cat.id %>" name="category_ids" value="<%= cat.id %>" type="checkbox"
+                          <%=selectedCategoryIds.includes(cat.id) ? 'checked' : '' %>
                         class="h-4 w-4 rounded border-gray-300 text-gray-900 focus:ring-gray-900">
+                      </div>
+                      <div class="ml-3 text-sm leading-6">
+                        <label for="cat-<%= cat.id %>" class="font-medium text-gray-900">
+                          <%= cat.name %>
+                        </label>
+                        <p class="text-gray-500 text-xs">Ativa silo em /<%= cat.slug %>
+                        </p>
+                      </div>
                     </div>
-                    <div class="ml-3 text-sm leading-6">
-                      <label for="cat-<%= cat.id %>" class="font-medium text-gray-900"><%= cat.name %></label>
-                      <p class="text-gray-500 text-xs">Ativa silo em /<%= cat.slug %></p>
-                    </div>
-                  </div>
-                <% }) %>
+                    <% }) %>
+                </div>
+                <p class="mt-2 text-xs text-gray-500 italic">*Selecione ao menos uma categoria para o parceiro aparecer
+                  nas buscas.</p>
               </div>
-              <p class="mt-2 text-xs text-gray-500 italic">*Selecione ao menos uma categoria para o parceiro aparecer nas buscas.</p>
             </div>
           </div>
         </div>
-      </div>
-  
-      <!-- Descrição Rica (Markdown) -->
-      <div class="pt-8 space-y-6 sm:space-y-5">
-        <div>
-          <h3 class="text-base font-semibold leading-6 text-gray-900">Conteúdo do Perfil (SEO Massivo)</h3>
-          <p class="mt-1 max-w-2xl text-sm text-gray-500">Crie o texto formatado para ser visualizado pelo usuário e processado pelo Google. Disponível fidedignamente no plano Elite/Parceiro.</p>
-        </div>
-  
+
+        <!-- Descrição Rica (Markdown) -->
+        <div class="pt-8 space-y-6 sm:space-y-5">
+          <div>
+            <h3 class="text-base font-semibold leading-6 text-gray-900">Conteúdo do Perfil (SEO Massivo)</h3>
+            <p class="mt-1 max-w-2xl text-sm text-gray-500">Crie o texto formatado para ser visualizado pelo usuário e
+              processado pelo Google. Disponível fidedignamente no plano Elite/Parceiro.</p>
+          </div>
+
           <div class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:py-6 border-t border-gray-200">
             <label class="block text-sm font-medium leading-6 text-gray-900 sm:pt-1.5">Abrangência (Cidades)</label>
             <div class="mt-2 sm:col-span-2 sm:mt-0 max-w-lg">
               <!-- Busca de Cidade -->
               <div class="relative">
-                <input type="text" id="city-search" placeholder="Buscar cidade para adicionar..." 
-                       class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-900 sm:text-sm sm:leading-6 pl-2">
-                <ul id="city-results" class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm hidden"></ul>
+                <input type="text" id="city-search" placeholder="Buscar cidade para adicionar..."
+                  class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-900 sm:text-sm sm:leading-6 pl-2">
+                <ul id="city-results"
+                  class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm hidden">
+                </ul>
               </div>
-              
+
               <!-- Lista de Cidades (Tags) -->
               <div id="selected-cities-tags" class="mt-4 flex flex-wrap gap-2">
-                <% selectedCities.forEach(city => { %>
-                  <span class="inline-flex items-center gap-x-1.5 rounded-md bg-gray-100 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-200" data-id="<%= city.ibge_id %>">
+                <% selectedCities.forEach(city=> { %>
+                  <span
+                    class="inline-flex items-center gap-x-1.5 rounded-md bg-gray-100 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-200"
+                    data-id="<%= city.ibge_id %>">
                     <%= city.name %> - <%= city.state_uf %>
-                    <button type="button" onclick="removeCity(<%= city.ibge_id %>)" class="group relative -mr-1 h-3.5 w-3.5 rounded-sm hover:bg-gray-200">
-                      <svg viewBox="0 0 14 14" class="h-3.5 w-3.5 stroke-gray-600/50 group-hover:stroke-gray-600/75"><path d="M4 4l6 6m0-6l-6 6" /></svg>
-                    </button>
-                    <input type="hidden" name="city_ids" value="<%= city.ibge_id %>">
+                        <button type="button" onclick="removeCity(<%= city.ibge_id %>)"
+                          class="group relative -mr-1 h-3.5 w-3.5 rounded-sm hover:bg-gray-200">
+                          <svg viewBox="0 0 14 14"
+                            class="h-3.5 w-3.5 stroke-gray-600/50 group-hover:stroke-gray-600/75">
+                            <path d="M4 4l6 6m0-6l-6 6" />
+                          </svg>
+                        </button>
+                        <input type="hidden" name="city_ids" value="<%= city.ibge_id %>">
                   </span>
-                <% }) %>
+                  <% }) %>
               </div>
-              <p class="mt-2 text-xs text-gray-500 italic">Limites: Básico (1), Parceiro (12), Elite (Ilimitado).</p>
+              <p class="mt-2 text-xs text-gray-500 italic">Limites: Básico (1), Parceiro (8), Elite (Ilimitado).</p>
             </div>
           </div>
         </div>
-      </div>
-  
-      <!-- Descrição Rica (Markdown) e Galeria -->
-      <div class="pt-8 space-y-6 sm:space-y-5">
-        <div>
-          <h3 class="text-base font-semibold leading-6 text-gray-900">Conteúdo Rico e Galeria</h3>
-          <p class="mt-1 max-w-2xl text-sm text-gray-500">Imagens e narrativa de autoridade do parceiro.</p>
-        </div>
-  
-        <div class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:py-6 border-t border-gray-200">
-            <label for="gallery_images" class="block text-sm font-medium leading-6 text-gray-900 sm:pt-1.5">Galeria JSON (URLs)</label>
-            <div class="mt-2 sm:col-span-2 sm:mt-0">
-              <textarea name="gallery_images" id="gallery_images" rows="2" class="block w-full max-w-lg rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-900 sm:text-sm sm:leading-6 pl-2 font-mono text-xs"><%= typeof partner !== 'undefined' ? (partner.gallery_images || '[]') : '[]' %></textarea>
-              <p class="mt-2 text-xs text-gray-500">Formato: ["url1", "url2"].</p>
-            </div>
-        </div>
+</div>
 
-        <div class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:py-6 border-t border-gray-200">
-            <label for="social_links" class="block text-sm font-medium leading-6 text-gray-900 sm:pt-1.5">Redes Sociais JSON</label>
-            <div class="mt-2 sm:col-span-2 sm:mt-0">
-              <textarea name="social_links" id="social_links" rows="2" class="block w-full max-w-lg rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-900 sm:text-sm sm:leading-6 pl-2 font-mono text-xs"><%= typeof partner !== 'undefined' ? (partner.social_links || '{}') : '{}' %></textarea>
-              <p class="mt-2 text-xs text-gray-500">Ex: {"instagram": "url", "facebook": "url"}</p>
-            </div>
-        </div>
+<!-- Descrição Rica (Markdown) e Galeria -->
+<div class="pt-8 space-y-6 sm:space-y-5">
+  <div>
+    <h3 class="text-base font-semibold leading-6 text-gray-900">Conteúdo Rico e Galeria</h3>
+    <p class="mt-1 max-w-2xl text-sm text-gray-500">Imagens e narrativa de autoridade do parceiro.</p>
+  </div>
 
-        <div class="mt-2">
-            <label class="block text-sm font-medium leading-6 text-gray-900 mb-2">Descrição Markdown</label>
-            <textarea id="description_markdown" name="description_markdown" class="invisible">
+  <div class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:py-6 border-t border-gray-200">
+    <label for="gallery_images" class="block text-sm font-medium leading-6 text-gray-900 sm:pt-1.5">Galeria JSON
+      (URLs)</label>
+    <div class="mt-2 sm:col-span-2 sm:mt-0">
+      <textarea name="gallery_images" id="gallery_images" rows="2"
+        class="block w-full max-w-lg rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-900 sm:text-sm sm:leading-6 pl-2 font-mono text-xs"><%= typeof partner !== 'undefined' ? (partner.gallery_images || '[]') : '[]' %></textarea>
+      <p class="mt-2 text-xs text-gray-500">Formato: ["url1", "url2"].</p>
+    </div>
+  </div>
+
+  <div class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:py-6 border-t border-gray-200">
+    <label for="social_links" class="block text-sm font-medium leading-6 text-gray-900 sm:pt-1.5">Redes Sociais
+      JSON</label>
+    <div class="mt-2 sm:col-span-2 sm:mt-0">
+      <textarea name="social_links" id="social_links" rows="2"
+        class="block w-full max-w-lg rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-900 sm:text-sm sm:leading-6 pl-2 font-mono text-xs"><%= typeof partner !== 'undefined' ? (partner.social_links || '{}') : '{}' %></textarea>
+      <p class="mt-2 text-xs text-gray-500">Ex: {"instagram": "url", "facebook": "url"}</p>
+    </div>
+  </div>
+
+  <div class="mt-2">
+    <label class="block text-sm font-medium leading-6 text-gray-900 mb-2">Descrição Markdown</label>
+    <textarea id="description_markdown" name="description_markdown" class="invisible">
                 <%= typeof partner !== 'undefined' && partner.description_markdown ? partner.description_markdown : '' %>
             </textarea>
-        </div>
-      </div>
-  
-      <div class="pt-5">
-        <div class="flex justify-end gap-x-3">
-          <a href="/admin" class="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">Cancelar</a>
-          <button type="submit" class="inline-flex justify-center rounded-md bg-gray-900 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-700">Salvar Dados</button>
-        </div>
-      </div>
-    </form>
   </div>
-  
-  <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        // Inicialização do Editor Markdown EasyMDE
-        const easymde = new EasyMDE({
-            element: document.getElementById('description_markdown'),
-            spellChecker: false,
-            autosave: { enabled: true, uniqueId: "ag_v2_partner_autosave" },
-            toolbar: ["bold", "italic", "heading", "|", "quote", "unordered-list", "ordered-list", "|", "link", "preview", "side-by-side", "fullscreen"]
-        });
+</div>
 
-        // Gestão de Cidades (Autocomplete)
-        const citySearch = document.getElementById('city-search');
-        const cityResults = document.getElementById('city-results');
-        const tagsContainer = document.getElementById('selected-cities-tags');
-        let debounceTimer;
+<div class="pt-5">
+  <div class="flex justify-end gap-x-3">
+    <a href="/admin"
+      class="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">Cancelar</a>
+    <button type="submit"
+      class="inline-flex justify-center rounded-md bg-gray-900 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-700">Salvar
+      Dados</button>
+  </div>
+</div>
+</form>
+</div>
 
-        citySearch.addEventListener('input', () => {
-            clearTimeout(debounceTimer);
-            const query = citySearch.value.trim();
-            if (query.length < 2) {
-                cityResults.classList.add('hidden');
-                return;
-            }
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // Inicialização do Editor Markdown EasyMDE
+    const easymde = new EasyMDE({
+      element: document.getElementById('description_markdown'),
+      spellChecker: false,
+      autosave: { enabled: true, uniqueId: "ag_v2_partner_autosave" },
+      toolbar: ["bold", "italic", "heading", "|", "quote", "unordered-list", "ordered-list", "|", "link", "preview", "side-by-side", "fullscreen"]
+    });
 
-            debounceTimer = setTimeout(async () => {
-                const res = await fetch(`/api/cities/search?q=${encodeURIComponent(query)}`);
-                const data = await res.json();
-                
-                if (data.success) {
-                    cityResults.innerHTML = '';
-                    data.cities.forEach(city => {
-                        const li = document.createElement('li');
-                        li.className = "cursor-pointer select-none py-2 pl-3 pr-9 text-gray-900 hover:bg-gray-100";
-                        li.textContent = `${city.name} - ${city.state_uf}`;
-                        li.onclick = () => addCity(city);
-                        cityResults.appendChild(li);
-                    });
-                    cityResults.classList.remove('hidden');
-                }
-            }, 300);
-        });
+    // Gestão de Cidades (Autocomplete)
+    const citySearch = document.getElementById('city-search');
+    const cityResults = document.getElementById('city-results');
+    const tagsContainer = document.getElementById('selected-cities-tags');
+    let debounceTimer;
 
-        window.addCity = (city) => {
-            // Verificar se já existe
-            if (document.querySelector(`[data-id="${city.ibge_id}"]`)) return;
+    citySearch.addEventListener('input', () => {
+      clearTimeout(debounceTimer);
+      const query = citySearch.value.trim();
+      if (query.length < 2) {
+        cityResults.classList.add('hidden');
+        return;
+      }
 
-            const span = document.createElement('span');
-            span.className = "inline-flex items-center gap-x-1.5 rounded-md bg-gray-100 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-200";
-            span.setAttribute('data-id', city.ibge_id);
-            span.innerHTML = `${city.name} - ${city.state_uf}
+      debounceTimer = setTimeout(async () => {
+        const res = await fetch(`/api/cities/search?q=${encodeURIComponent(query)}`);
+        const data = await res.json();
+
+        if (data.success) {
+          cityResults.innerHTML = '';
+          data.cities.forEach(city => {
+            const li = document.createElement('li');
+            li.className = "cursor-pointer select-none py-2 pl-3 pr-9 text-gray-900 hover:bg-gray-100";
+            li.textContent = `${city.name} - ${city.state_uf}`;
+            li.onclick = () => addCity(city);
+            cityResults.appendChild(li);
+          });
+          cityResults.classList.remove('hidden');
+        }
+      }, 300);
+    });
+
+    window.addCity = (city) => {
+      // Verificar se já existe
+      if (document.querySelector(`[data-id="${city.ibge_id}"]`)) return;
+
+      const span = document.createElement('span');
+      span.className = "inline-flex items-center gap-x-1.5 rounded-md bg-gray-100 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-200";
+      span.setAttribute('data-id', city.ibge_id);
+      span.innerHTML = `${city.name} - ${city.state_uf}
                 <button type="button" onclick="removeCity(${city.ibge_id})" class="group relative -mr-1 h-3.5 w-3.5 rounded-sm hover:bg-gray-200">
                   <svg viewBox="0 0 14 14" class="h-3.5 w-3.5 stroke-gray-600/50 group-hover:stroke-gray-600/75"><path d="M4 4l6 6m0-6l-6 6" /></svg>
                 </button>
                 <input type="hidden" name="city_ids" value="${city.ibge_id}">`;
-            
-            tagsContainer.appendChild(span);
-            citySearch.value = '';
-            cityResults.classList.add('hidden');
-        };
 
-        window.removeCity = (id) => {
-            const tag = document.querySelector(`[data-id="${id}"]`);
-            if (tag) tag.remove();
-        };
+      tagsContainer.appendChild(span);
+      citySearch.value = '';
+      cityResults.classList.add('hidden');
+    };
 
-        // Fechar resultados ao clicar fora
-        document.addEventListener('click', (e) => {
-            if (!citySearch.contains(e.target)) cityResults.classList.add('hidden');
-        });
+    window.removeCity = (id) => {
+      const tag = document.querySelector(`[data-id="${id}"]`);
+      if (tag) tag.remove();
+    };
+
+    // Fechar resultados ao clicar fora
+    document.addEventListener('click', (e) => {
+      if (!citySearch.contains(e.target)) cityResults.classList.add('hidden');
     });
-  </script>
+  });
+</script>

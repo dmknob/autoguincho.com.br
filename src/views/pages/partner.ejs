@@ -104,11 +104,20 @@
                             let rawTelP = partner.whatsapp_number || partner.call_number || '';
                             let maskedTelP = 'Ver Contato';
                             let fullTelP = '';
-                            if (rawTelP.startsWith('55') && rawTelP.length >= 12) {
-                                let dddP = rawTelP.substring(2, 4);
-                                let digitsP = rawTelP.substring(4);
-                                maskedTelP = `(${dddP}) ${digitsP.substring(0, 5)}-****`;
-                                fullTelP = `(${dddP}) ${digitsP.substring(0, 5)}-${digitsP.substring(5)}`;
+                            // Parser robusto: aceita 55+DDD+num (12-13 dig) ou DDD+num (10-11 dig)
+                            let strippedP = rawTelP.replace(/\D/g, '');
+                            let dddP = '', localNumP = '';
+                            if (strippedP.startsWith('55') && strippedP.length >= 12) {
+                                dddP = strippedP.substring(2, 4);
+                                localNumP = strippedP.substring(4);
+                            } else if (strippedP.length >= 10 && strippedP.length <= 11) {
+                                dddP = strippedP.substring(0, 2);
+                                localNumP = strippedP.substring(2);
+                            }
+                            if (dddP && localNumP) {
+                                let visibleP = localNumP.length - 4;
+                                maskedTelP = `(${dddP}) ${localNumP.substring(0, visibleP)}-****`;
+                                fullTelP = `(${dddP}) ${localNumP.substring(0, visibleP)}-${localNumP.substring(visibleP)}`;
                             }
                         %>
 
@@ -163,7 +172,6 @@
                             <% } %>
                         </div>
                     <% } %>
-                </div>
             </div>
 
             <!-- Conteúdo Rico -->
@@ -174,6 +182,39 @@
                     <p>Página oficial do parceiro <%= partner.company_name %> no ecossistema Auto Guincho. Profissional qualificado para atendimento emergencial.</p>
                 <% } %>
             </div>
+
+            <%
+                let galleryImages = [];
+                try { galleryImages = JSON.parse(partner.gallery_images || '[]'); } catch(e) {}
+                const planConfig = plans[partner.plan_level] || plans.basic;
+                const allowedPhotos = planConfig.max_photos || 0;
+                const visibleImages = galleryImages.slice(0, allowedPhotos);
+            %>
+            <% if (visibleImages.length > 0) { %>
+            <!-- Galeria de Fotos -->
+            <div class="mt-8">
+                <h2 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Galeria de Fotos</h2>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    <% visibleImages.forEach(function(imgUrl, idx) { %>
+                        <div class="aspect-video bg-gray-900 rounded-xl overflow-hidden cursor-pointer group border border-gray-800 hover:border-gold/40 transition"
+                             onclick="openLightbox('<%= imgUrl %>', '<%= partner.company_name %>')">
+                            <img src="<%= imgUrl %>" alt="Foto <%= idx + 1 %> de <%= partner.company_name %>"
+                                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                 loading="lazy">
+                        </div>
+                    <% }); %>
+                </div>
+            </div>
+
+            <!-- Lightbox Modal -->
+            <div id="gallery-lightbox" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/90 backdrop-blur-sm"
+                 onclick="closeLightbox()">
+                <button class="absolute top-4 right-6 text-white text-4xl font-thin leading-none hover:text-gold transition" onclick="closeLightbox()">&#x2715;</button>
+                <img id="lightbox-img" src="" alt="" class="max-w-[90vw] max-h-[85vh] object-contain rounded-xl shadow-2xl">
+                <p id="lightbox-caption" class="absolute bottom-4 text-gray-400 text-sm"></p>
+            </div>
+            <% } %>
+
 
             <!-- Links de Utilidade e Curadoria -->
             <div class="mt-12 pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center gap-6 text-center md:text-left">
@@ -195,6 +236,28 @@
         </main>
 
         <%- include('../partials/footer') %>
+
+    <script>
+        // ── Lightbox da Galeria ──────────────────────────
+        function openLightbox(src, caption) {
+            var lb = document.getElementById('gallery-lightbox');
+            document.getElementById('lightbox-img').src = src;
+            document.getElementById('lightbox-caption').textContent = caption;
+            lb.classList.remove('hidden');
+            lb.classList.add('flex');
+            document.body.style.overflow = 'hidden';
+        }
+        function closeLightbox() {
+            var lb = document.getElementById('gallery-lightbox');
+            lb.classList.add('hidden');
+            lb.classList.remove('flex');
+            document.getElementById('lightbox-img').src = '';
+            document.body.style.overflow = '';
+        }
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeLightbox();
+        });
+    </script>
 
     <script>
         function revealContact(id, trackLead) {
