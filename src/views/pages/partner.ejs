@@ -99,21 +99,44 @@
                         </div>
                     <% } %>
 
-                    <div class="mt-8 flex flex-col md:flex-row gap-4 border-t border-gray-800 pt-8">
-                        <% if (partner.whatsapp_number) { %>
-                            <a href="/r/wa/<%= partner.id %>"
-                                target="_blank" rel="nofollow noreferrer"
-                                class="flex-1 flex justify-center items-center py-4 px-6 rounded-xl font-bold text-lg text-white bg-green-600 hover:bg-green-700 transition shadow-[0_0_15px_rgba(22,163,74,0.4)]">
-                                Chamar no WhatsApp
-                            </a>
-                        <% } %>
-                        
-                        <% if (partner.call_number) { %>
-                            <a href="/r/call/<%= partner.id %>" rel="nofollow noreferrer"
-                                class="flex-1 flex justify-center items-center py-4 px-6 rounded-xl font-bold text-lg text-white bg-slate-800 hover:bg-slate-700 transition border border-slate-700">
-                                Ligar Agora
-                            </a>
-                        <% } %>
+                    <div class="mt-8 flex flex-col gap-4 border-t border-gray-800 pt-8">
+                        <%
+                            let rawTelP = partner.whatsapp_number || partner.call_number || '';
+                            let maskedTelP = 'Ver Contato';
+                            let fullTelP = '';
+                            if (rawTelP.startsWith('55') && rawTelP.length >= 12) {
+                                let dddP = rawTelP.substring(2, 4);
+                                let digitsP = rawTelP.substring(4);
+                                maskedTelP = `(${dddP}) ${digitsP.substring(0, 5)}-****`;
+                                fullTelP = `(${dddP}) ${digitsP.substring(0, 5)}-${digitsP.substring(5)}`;
+                            }
+                        %>
+
+                        <!-- Botão inicial ofuscado -->
+                        <button type="button" onclick="revealContact('<%= partner.id %>')" id="btn-reveal-<%= partner.id %>"
+                            data-tel="<%= fullTelP %>"
+                            class="w-full flex flex-col justify-center items-center py-4 px-6 rounded-xl font-bold text-white bg-slate-800 hover:bg-slate-700 transition border border-slate-600 cursor-pointer shadow-lg">
+                            <span class="text-sm font-normal text-slate-400 mb-1">Contato Direto</span>
+                            <span class="text-2xl tracking-widest text-gold"><%= maskedTelP %></span>
+                            <span class="text-xs text-slate-400 mt-1 uppercase tracking-wider">▼ Clique para revelar</span>
+                        </button>
+
+                        <!-- Contatos reais revelados -->
+                        <div id="real-contacts-<%= partner.id %>" class="hidden flex-col md:flex-row gap-4">
+                            <p id="full-tel-<%= partner.id %>" class="w-full text-center text-gold font-bold text-2xl tracking-widest py-2"></p>
+                            <% if (partner.whatsapp_number) { %>
+                                <a href="/r/wa/<%= partner.id %>" target="_blank" rel="nofollow noreferrer"
+                                    class="flex-1 flex justify-center items-center py-4 px-6 rounded-xl font-bold text-lg text-white bg-green-600 hover:bg-green-700 transition shadow-[0_0_15px_rgba(22,163,74,0.4)]">
+                                    Chamar no WhatsApp
+                                </a>
+                            <% } %>
+                            <% if (partner.call_number) { %>
+                                <a href="/r/call/<%= partner.id %>" rel="nofollow noreferrer"
+                                    class="flex-1 flex justify-center items-center py-4 px-6 rounded-xl font-bold text-lg text-white bg-slate-800 hover:bg-slate-700 transition border border-slate-700">
+                                    Ligar Agora
+                                </a>
+                            <% } %>
+                        </div>
                     </div>
 
                     <!-- Redes Sociais Section (Plan Elite Only) -->
@@ -172,6 +195,45 @@
         </main>
 
         <%- include('../partials/footer') %>
+
+    <script>
+        function revealContact(id, trackLead) {
+            var btn = document.getElementById('btn-reveal-' + id);
+            var box = document.getElementById('real-contacts-' + id);
+            var telEl = document.getElementById('full-tel-' + id);
+            if (btn) {
+                if (telEl) telEl.textContent = btn.dataset.tel || '';
+                btn.style.display = 'none';
+            }
+            if (box) {
+                box.classList.remove('hidden');
+                box.classList.add('flex');
+            }
+            // Só dispara beacon se for um clique humano novo nesta sessão
+            if (trackLead !== false && !sessionStorage.getItem('revealed_' + id)) {
+                sessionStorage.setItem('revealed_' + id, '1');
+                try {
+                    navigator.sendBeacon('/api/system/interaction', new Blob([JSON.stringify({
+                        event_type: 'cta_click',
+                        event_label: 'reveal',
+                        page_path: window.location.pathname,
+                        entity_type: 'listing',
+                        entity_id: parseInt(id)
+                    })], { type: 'application/json' }));
+                } catch(e) {}
+            }
+        }
+
+        // Restaura estado ao recarregar a página (F5) sem re-disparar o beacon
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('[id^="btn-reveal-"]').forEach(function(btn) {
+                var id = btn.id.replace('btn-reveal-', '');
+                if (sessionStorage.getItem('revealed_' + id)) {
+                    revealContact(id, false);
+                }
+            });
+        });
+    </script>
 
     <script>
         // Rastreamento Automático de Perfil (Compatível com SSG e Caches em Produção)
