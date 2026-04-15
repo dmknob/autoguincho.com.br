@@ -1,0 +1,70 @@
+<%# Padrão Corpo Digital — Cookie Consent Banner (08-lgpd-e-privacidade.md §3.4) %>
+<%# GA só carrega APÓS consentimento explícito. Nunca carrega sozinho. %>
+<div id="cookie-banner"
+    class="fixed bottom-0 left-0 right-0 z-[9999] hidden items-center justify-center gap-4 flex-wrap
+           bg-black/95 backdrop-blur-md border-t border-gray-800 px-6 py-4 text-sm text-gray-300">
+    <span class="text-center md:text-left">
+        Este site utiliza cookies analíticos (Google Analytics) para melhorar a experiência de navegação.
+        <a href="/politica-de-privacidade" class="text-gold underline hover:text-yellow-300 ml-1">Política de Privacidade</a> ·
+        <a href="/termos-de-uso" class="text-gold underline hover:text-yellow-300">Termos de Uso</a>
+    </span>
+    <div class="flex gap-3 shrink-0">
+        <button id="btn-cookie-accept"
+            class="bg-gold text-black font-bold px-5 py-2 rounded-lg text-sm cursor-pointer hover:bg-yellow-400 transition">
+            Aceitar
+        </button>
+        <button id="btn-cookie-reject"
+            class="bg-transparent text-gray-400 border border-gray-600 font-medium px-5 py-2 rounded-lg text-sm cursor-pointer hover:border-gray-400 transition">
+            Recusar
+        </button>
+    </div>
+</div>
+
+<script>
+    // ── Padrão Corpo Digital / LGPD — Cookie Consent + GA ──────────────────
+    // GA NUNCA carrega automaticamente. Só via consentimento explícito.
+    // Ref: corpo-digital-docs/08-lgpd-e-privacidade.md §3.2 e §3.4
+    var _gtagLoaded = false;
+    function loadGA() {
+        if (_gtagLoaded) return;
+        _gtagLoaded = true;
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        var s = document.createElement('script');
+        s.async = true;
+        s.src = 'https://www.googletagmanager.com/gtag/js?id=<%= GTAG_ID %>';
+        document.head.appendChild(s);
+        s.onload = function() {
+            gtag('config', '<%= GTAG_ID %>', { page_path: location.pathname });
+        };
+    }
+
+    (function () {
+        var consent = localStorage.getItem('cookie_consent');
+        var banner = document.getElementById('cookie-banner');
+
+        if (!consent) {
+            // Sem decisão → mostra banner, GA bloqueado
+            banner.classList.remove('hidden');
+            banner.classList.add('flex');
+        } else if (consent === 'accepted') {
+            // Já aceitou → carrega GA silenciosamente
+            loadGA();
+        }
+        // Se 'rejected' → nada acontece
+
+        document.getElementById('btn-cookie-accept').addEventListener('click', function () {
+            localStorage.setItem('cookie_consent', 'accepted');
+            banner.classList.add('hidden');
+            banner.classList.remove('flex');
+            loadGA();
+        });
+
+        document.getElementById('btn-cookie-reject').addEventListener('click', function () {
+            localStorage.setItem('cookie_consent', 'rejected');
+            banner.classList.add('hidden');
+            banner.classList.remove('flex');
+        });
+    })();
+</script>

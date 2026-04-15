@@ -72,18 +72,17 @@
                         <% } %>
                     </div>
 
-                    <% if(partner.plan_level==='elite' ) { %>
+                    <% if(partner.plan_level==='elite') { %>
                         <div class="mt-4 flex flex-wrap gap-2">
-                            <span
-                                class="inline-flex items-center px-3 py-1 rounded-full text-xs font-black bg-gold text-black uppercase tracking-widest">
-                                Selado Auto Guincho
-                            </span>
-                            <span
-                                class="inline-flex items-center px-3 py-1 rounded-full text-xs font-black bg-gray-800 text-gold uppercase tracking-widest border border-gold">
-                                Selo Ouro
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-gold text-black uppercase tracking-widest">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-3.5 h-3.5">
+                                    <path fill-rule="evenodd" d="M16.403 12.652a3 3 0 0 0 0-5.304 3 3 0 0 0-3.75-3.751 3 3 0 0 0-5.305 0 3 3 0 0 0-3.751 3.75 3 3 0 0 0 0 5.305 3 3 0 0 0 3.75 3.751 3 3 0 0 0 5.305 0 3 3 0 0 0 3.751-3.75Zm-2.546-4.46a.75.75 0 0 0-1.214-.883l-3.483 4.79-1.88-1.88a.75.75 0 1 0-1.06 1.061l2.5 2.5a.75.75 0 0 0 1.137-.089l4-5.5Z" clip-rule="evenodd" />
+                                </svg>
+                                Parceiro em Destaque
                             </span>
                         </div>
                     <% } %>
+
 
                     <!-- Cidades Atendidas Section -->
                     <% if (locals.servedCities && servedCities.length > 0) { %>
@@ -146,6 +145,11 @@
                                 </a>
                             <% } %>
                         </div>
+
+                        <!-- Disclaimer Jurídico -->
+                        <p class="text-xs text-gray-600 text-center mt-2">
+                            O Auto Guincho é uma plataforma de divulgação. Não certificamos nem atestamos a idoneidade dos prestadores anunciados.
+                        </p>
                     </div>
 
                     <!-- Redes Sociais Section (Plan Elite Only) -->

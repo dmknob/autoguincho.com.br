@@ -275,7 +275,48 @@ async function buildPlansPage() {
     }
 }
 
-// 6. Execução Geral
+// 8. Páginas Legais (Termos de Uso + Política de Privacidade)
+async function buildLegalPages() {
+    const pages = [
+        {
+            template: '../src/views/pages/termos-de-uso.ejs',
+            dir: 'termos-de-uso',
+            path: '/termos-de-uso',
+            title: 'Termos de Uso | Auto Guincho',
+            label: 'Termos de Uso'
+        },
+        {
+            template: '../src/views/pages/politica-privacidade.ejs',
+            dir: 'politica-de-privacidade',
+            path: '/politica-de-privacidade',
+            title: 'Política de Privacidade | Auto Guincho',
+            label: 'Política de Privacidade'
+        }
+    ];
+
+    for (const page of pages) {
+        console.log(`-> Gerando ${page.label} (${page.dir}/index.html)...`);
+        const tplPath = path.join(__dirname, page.template);
+        const outDir = path.join(publicDir, page.dir);
+        if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true });
+        try {
+            const html = await ejs.renderFile(tplPath, {
+                BASE_URL,
+                GTAG_ID,
+                WHATSAPP_CONTACT,
+                path: page.path,
+                title: page.title,
+                allCategories
+            });
+            fs.writeFileSync(path.join(outDir, 'index.html'), html);
+            console.log(`✅ ${page.label} gerada.`);
+        } catch (e) {
+            console.error(`❌ Erro ao gerar ${page.label}:`, e);
+        }
+    }
+}
+
+// Execução Geral
 (async function run() {
     await copyAssets();
     await buildHome();
@@ -283,6 +324,7 @@ async function buildPlansPage() {
     await buildDirtyCities();
     await buildAllProfiles();
     await buildPlansPage();
+    await buildLegalPages();
     console.log('🏁 Build concluído!');
     process.exit(0);
 })();

@@ -29,29 +29,4 @@
     .markdown-body strong { color: #d4af37; }
 </style>
 
-<!-- Delayed Analytics (Padrão Corpo Digital 5s) -->
-<% if (locals.GTAG_ID && GTAG_ID !== 'G-XXXXXXXXXX') { %>
-<script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    
-    let gtagLoaded = false;
-    function loadGTM() {
-        if (gtagLoaded) return;
-        gtagLoaded = true;
-        const script = document.createElement('script');
-        script.src = 'https://www.googletagmanager.com/gtag/js?id=<%= GTAG_ID %>';
-        script.async = true;
-        document.head.appendChild(script);
-        gtag('config', '<%= GTAG_ID %>', { page_path: window.location.pathname });
-        ['scroll', 'mousemove', 'touchstart', 'click', 'keydown'].forEach(evt => {
-            window.removeEventListener(evt, loadGTM);
-        });
-    }
-    ['scroll', 'mousemove', 'touchstart', 'click', 'keydown'].forEach(evt => {
-        window.addEventListener(evt, loadGTM, { passive: true, once: true });
-    });
-    setTimeout(loadGTM, 5000);
-</script>
-<% } %>
+

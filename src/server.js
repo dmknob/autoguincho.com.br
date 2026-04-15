@@ -228,6 +228,32 @@ if (process.env.NODE_ENV !== 'production') {
         });
     });
 
+    // Rota: Termos de Uso
+    app.get('/termos-de-uso', (req, res) => {
+        res.render('pages/termos-de-uso', {
+            layout: false,
+            BASE_URL,
+            GTAG_ID,
+            WHATSAPP_CONTACT,
+            path: '/termos-de-uso',
+            title: 'Termos de Uso | Auto Guincho',
+            allCategories
+        });
+    });
+
+    // Rota: Política de Privacidade
+    app.get('/politica-de-privacidade', (req, res) => {
+        res.render('pages/politica-privacidade', {
+            layout: false,
+            BASE_URL,
+            GTAG_ID,
+            WHATSAPP_CONTACT,
+            path: '/politica-de-privacidade',
+            title: 'Política de Privacidade | Auto Guincho',
+            allCategories
+        });
+    });
+
     // Rota para Perfis
     app.get('/perfil/:slug', (req, res, next) => {
         const { slug } = req.params;

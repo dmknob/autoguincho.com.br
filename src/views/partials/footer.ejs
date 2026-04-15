@@ -18,7 +18,19 @@
             </div>
         </div>
         <p class="mb-2 font-bold uppercase tracking-widest text-gray-700">Diretório Oficial de Profissionais</p>
-        <p>&copy; <%= new Date().getFullYear() %> Auto Guincho. Desenvolvido no ecossistema de performance | Corpo Digital
+        <p>&copy; <%= new Date().getFullYear() %> Auto Guincho. Desenvolvido por
+            <a href="https://corpodigital.com.br" target="_blank" rel="noopener" class="text-gray-400 hover:text-gold transition">Corpo Digital</a>
         </p>
+        <div class="mt-4 flex justify-center flex-wrap gap-x-6 gap-y-2 text-xs text-gray-600">
+            <a href="/seja-parceiro" class="hover:text-gold transition font-medium">Seja Parceiro</a>
+            <span class="text-gray-800">·</span>
+            <a href="/termos-de-uso" class="hover:text-gray-400 transition">Termos de Uso</a>
+            <span class="text-gray-800">·</span>
+            <a href="/politica-de-privacidade" class="hover:text-gray-400 transition">Política de Privacidade</a>
+        </div>
     </div>
 </footer>
+
+<% if (locals.GTAG_ID && GTAG_ID !== 'G-XXXXXXXXXX') { %>
+    <%- include('./cookie-banner') %>
+<% } %>
