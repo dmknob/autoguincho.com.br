@@ -272,11 +272,20 @@ if (process.env.NODE_ENV !== 'production') {
             WHERE lsc.listing_id = ?
         `).all(partner.id);
 
+        // Buscar categorias atendidas
+        const servedCategories = db.prepare(`
+            SELECT c.name, c.slug 
+            FROM categories c 
+            JOIN category_listings cl ON c.id = cl.category_id 
+            WHERE cl.listing_id = ?
+        `).all(partner.id);
+
         const html_text = partner.description_markdown ? marked.parse(partner.description_markdown) : "";
         res.render('pages/partner', {
             layout: false,
             partner: partner,
             servedCities: servedCities,
+            servedCategories: servedCategories,
             html_text: html_text,
             BASE_URL,
             GTAG_ID,

@@ -23,12 +23,15 @@ CREATE TABLE IF NOT EXISTS listings (
   slug TEXT UNIQUE NOT NULL, -- Usado na Vanity URL /perfil/slug
   plan_level TEXT DEFAULT 'basic', -- 'basic', 'partner', 'elite'
   whatsapp_number TEXT,  
+  is_whatsapp_verified BOOLEAN DEFAULT 0, -- Se está entre os badges
   call_number TEXT,
-  description_markdown TEXT,  -- Texto do painel Admin
+  description_markdown TEXT,  -- Texto do Painel Admin (Texto Padrão + Personalizado)
+  badges JSON, -- Array de strings com os badges do parceiro
   logo_url TEXT,
   gallery_images JSON, -- Array de strings das imagens
   social_links JSON,
   maps_link TEXT,
+  base_city_ibge_id INTEGER, -- Cidade base do parceiro
   last_renewal_date DATETIME, -- Motor do CRM para rebaixamento
   is_active BOOLEAN DEFAULT 1,
   is_dirty BOOLEAN DEFAULT 1, -- Flag SSG
