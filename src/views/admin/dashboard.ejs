@@ -39,8 +39,8 @@
 
     <!-- Filtros e Busca -->
     <div class="mt-4 bg-gray-50 border border-gray-200 rounded-lg p-3 sm:p-4">
-        <form action="/admin" method="GET" class="grid grid-cols-2 sm:grid-cols-4 gap-3 items-end">
-            <div class="col-span-2 sm:col-span-1">
+        <form action="/admin" method="GET" class="grid grid-cols-2 lg:grid-cols-5 gap-3 items-end">
+            <div class="col-span-2 lg:col-span-1">
                 <label for="q" class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Buscar</label>
                 <input type="text" name="q" id="q" value="<%= filters.q || '' %>" placeholder="Nome..."
                     class="block w-full rounded-md border-0 py-1.5 text-sm text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-900 pl-2">
@@ -71,8 +71,18 @@
             </div>
 
             <div class="flex gap-2">
-                <button type="submit" class="flex-1 rounded-md bg-gray-800 px-3 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-gray-700">Filtrar</button>
-                <a href="/admin" class="rounded-md bg-white px-3 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">×</a>
+                <button type="submit" class="flex-1 rounded-md bg-gray-800 px-3 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-gray-700 min-h-[38px]">Filtrar</button>
+                <a href="/admin" class="rounded-md bg-white px-3 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 min-h-[38px] flex items-center justify-center">×</a>
+            </div>
+
+            <div>
+                <label for="sort_select" class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Crescente / Decrescente</label>
+                <select id="sort_select" onchange="runSort(this.value)" class="block w-full rounded-md border-0 py-1.5 text-sm text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-gray-900">
+                    <option value="name_asc">Ordem Alfabética</option>
+                    <option value="leads_desc">Maior nº Leads primeiro</option>
+                    <option value="views_desc">Maior nº Visitas primeiro</option>
+                    <option value="plan_desc">Plano (Elite > Basic)</option>
+                </select>
             </div>
         </form>
     </div>
@@ -85,23 +95,24 @@
             <table class="min-w-full divide-y divide-gray-300">
               <thead class="bg-gray-50">
                 <tr>
-                  <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">Empresa</th>
-                  <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Plano</th>
+                  <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6 cursor-pointer hover:text-blue-600" onclick="document.getElementById('sort_select').value='name_asc'; runSort('name_asc')">Empresa ⇅</th>
+                  <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 cursor-pointer hover:text-blue-600" onclick="document.getElementById('sort_select').value='plan_desc'; runSort('plan_desc')">Plano ⇅</th>
                   <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Vencimento</th>
-                  <th scope="col" class="px-3 py-3.5 text-right text-sm font-semibold text-gray-900">Visitas</th>
-                  <th scope="col" class="px-3 py-3.5 text-right text-sm font-semibold text-gray-900">Leads</th>
+                  <th scope="col" class="px-3 py-3.5 text-right text-sm font-semibold text-gray-900 cursor-pointer hover:text-blue-600" onclick="document.getElementById('sort_select').value='views_desc'; runSort('views_desc')">Visitas ⇅</th>
+                  <th scope="col" class="px-3 py-3.5 text-right text-sm font-semibold text-gray-900 cursor-pointer hover:text-blue-600" onclick="document.getElementById('sort_select').value='leads_desc'; runSort('leads_desc')">Leads ⇅</th>
                   <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Status</th>
                   <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
                     <span class="sr-only">Ações</span>
                   </th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-gray-200 bg-white">
+              <tbody class="divide-y divide-gray-200 bg-white" id="desktop-tbody">
                 <% if (listings.length === 0) { %>
                     <tr><td colspan="7" class="p-6 text-center text-sm text-gray-500">Nenhum prestador cadastrado.</td></tr>
                 <% } else { %>
                     <% listings.forEach(function(l) { %>
-                    <tr>
+                    <% let planW = l.plan_level === 'elite' ? 1 : (l.plan_level==='partner' ? 2 : 3); %>
+                    <tr class="sortable-item" data-name="<%= l.company_name.toLowerCase() %>" data-plan="<%= planW %>" data-views="<%= l.page_views || 0 %>" data-leads="<%= l.leads_gerados || 0 %>">
                     <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6"><%= l.company_name %></td>
                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 uppercase"><%= l.plan_level %></td>
                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500"><%= l.last_renewal_date ? new Date(l.last_renewal_date).toLocaleDateString() : 'N/A' %></td>
@@ -114,10 +125,10 @@
                             <span class="inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 border border-red-200">Inativo</span>
                         <% } %>
                     </td>
-                    <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6 flex justify-end gap-3">
-                        <a href="/admin/partner/<%= l.id %>" class="text-blue-600 hover:text-blue-900 font-bold">Editar</a>
+                    <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6 flex justify-end gap-3 min-h-[44px] items-center">
+                        <a href="/admin/partner/<%= l.id %>" class="text-blue-600 hover:text-blue-900 font-bold whitespace-nowrap px-2 py-2">Editar</a>
                         <span class="text-gray-300">|</span>
-                        <a href="/perfil/<%= l.slug %>" target="_blank" class="text-green-600 hover:text-green-900 font-bold">Ver</a>
+                        <a href="/perfil/<%= l.slug %>" target="_blank" class="text-green-600 hover:text-green-900 font-bold whitespace-nowrap px-2 py-2">Ver</a>
                     </td>
                     </tr>
                     <% }); %>
@@ -130,46 +141,94 @@
     </div>
 
     <!-- ═══════ CARDS MOBILE (<640px) ═══════ -->
-    <div class="mt-4 sm:hidden space-y-3">
+    <div class="mt-4 sm:hidden space-y-4 pb-12" id="mobile-cards">
         <% if (listings.length === 0) { %>
             <p class="text-center text-sm text-gray-500 py-6">Nenhum prestador cadastrado.</p>
         <% } else { %>
             <% listings.forEach(function(l) { %>
-            <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-3">
+            <% let planWMob = l.plan_level === 'elite' ? 1 : (l.plan_level==='partner' ? 2 : 3); %>
+            <div class="sortable-item bg-white rounded-xl border border-gray-200 shadow-sm p-4" data-name="<%= l.company_name.toLowerCase() %>" data-plan="<%= planWMob %>" data-views="<%= l.page_views || 0 %>" data-leads="<%= l.leads_gerados || 0 %>">
                 <div class="flex items-start justify-between gap-2">
                     <div class="min-w-0 flex-1">
-                        <p class="text-sm font-bold text-gray-900 truncate"><%= l.company_name %></p>
-                        <div class="mt-1 flex flex-wrap items-center gap-2">
-                            <span class="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded bg-gray-100 text-gray-600"><%= l.plan_level %></span>
+                        <p class="text-base font-bold text-gray-900 break-words"><%= l.company_name %></p>
+                        <div class="mt-2 flex flex-wrap items-center gap-2">
+                            <span class="text-[10px] font-bold uppercase px-2 py-1 rounded bg-gray-100 text-gray-600"><%= l.plan_level %></span>
                             <% if (l.is_active) { %>
-                                <span class="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium text-green-700 bg-green-50 border border-green-200">Ativo</span>
+                                <span class="inline-flex items-center rounded px-2 py-1 text-[10px] font-bold text-green-700 bg-green-50 border border-green-200">Ativo</span>
                             <% } else { %>
-                                <span class="inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-medium text-red-700 bg-red-50 border border-red-200">Inativo</span>
+                                <span class="inline-flex items-center rounded px-2 py-1 text-[10px] font-bold text-red-700 bg-red-50 border border-red-200">Inativo</span>
                             <% } %>
                         </div>
                     </div>
                 </div>
-                <div class="mt-2 grid grid-cols-3 gap-2 text-center text-[11px]">
-                    <div class="bg-gray-50 rounded px-2 py-1.5">
-                        <p class="text-gray-400 font-medium">Visitas</p>
-                        <p class="text-sm font-bold text-gray-700"><%= l.page_views || 0 %></p>
+                <div class="mt-4 grid grid-cols-3 gap-2 text-center text-[12px]">
+                    <div class="bg-gray-50 rounded-lg px-2 py-2 border border-gray-100">
+                        <p class="text-gray-400 font-semibold mb-1">Visitas</p>
+                        <p class="text-sm font-black text-gray-700"><%= l.page_views || 0 %></p>
                     </div>
-                    <div class="bg-gray-50 rounded px-2 py-1.5">
-                        <p class="text-gray-400 font-medium">Leads</p>
-                        <p class="text-sm font-bold text-green-600"><%= l.leads_gerados || 0 %></p>
+                    <div class="bg-gray-50 rounded-lg px-2 py-2 border border-gray-100">
+                        <p class="text-gray-400 font-semibold mb-1">Leads</p>
+                        <p class="text-sm font-black text-green-600"><%= l.leads_gerados || 0 %></p>
                     </div>
-                    <div class="bg-gray-50 rounded px-2 py-1.5">
-                        <p class="text-gray-400 font-medium">Venc.</p>
-                        <p class="text-[10px] font-bold text-gray-700"><%= l.last_renewal_date ? new Date(l.last_renewal_date).toLocaleDateString() : '—' %></p>
+                    <div class="bg-gray-50 rounded-lg px-2 py-2 border border-gray-100 flex flex-col justify-center items-center">
+                        <p class="text-gray-400 font-semibold mb-1 w-full text-center">Venc.</p>
+                        <p class="text-[10px] sm:text-xs font-bold text-gray-600 tracking-tighter truncate w-full"><%= l.last_renewal_date ? new Date(l.last_renewal_date).toLocaleDateString() : '—' %></p>
                     </div>
                 </div>
-                <div class="mt-2 flex gap-2 border-t border-gray-100 pt-2">
-                    <a href="/admin/partner/<%= l.id %>" class="flex-1 text-center text-xs font-bold text-blue-600 hover:text-blue-900 py-1">Editar</a>
-                    <a href="/perfil/<%= l.slug %>" target="_blank" class="flex-1 text-center text-xs font-bold text-green-600 hover:text-green-900 py-1 border-l border-gray-100">Ver Página</a>
+                <div class="mt-4 flex gap-3 border-t border-gray-100 pt-4">
+                    <a href="/admin/partner/<%= l.id %>" class="flex-1 flex justify-center items-center rounded-lg bg-blue-50 text-blue-700 border border-blue-200 min-h-[44px] text-sm font-bold shadow-sm active:bg-blue-100 transition">Editar</a>
+                    <a href="/perfil/<%= l.slug %>" target="_blank" class="flex-1 flex justify-center items-center rounded-lg bg-green-50 text-green-700 border border-green-200 min-h-[44px] text-sm font-bold shadow-sm active:bg-green-100 transition">Ver Página</a>
                 </div>
             </div>
             <% }); %>
         <% } %>
     </div>
-
 </div>
+
+<script>
+    // Pure Vanilla JS Sorting for both Desktop and Mobile views
+    function runSort(method) {
+        // Tabela Desktop
+        const desktopTbody = document.getElementById('desktop-tbody');
+        if (desktopTbody) {
+            const desktopItems = Array.from(desktopTbody.querySelectorAll('.sortable-item'));
+            sortElements(desktopItems, method);
+            desktopItems.forEach(item => desktopTbody.appendChild(item));
+        }
+
+        // Cards Mobile
+        const mobileContainer = document.getElementById('mobile-cards');
+        if (mobileContainer) {
+            const mobileItems = Array.from(mobileContainer.querySelectorAll('.sortable-item'));
+            sortElements(mobileItems, method);
+            mobileItems.forEach(item => mobileContainer.appendChild(item));
+        }
+    }
+
+    function sortElements(arr, method) {
+        arr.sort((a, b) => {
+            const aLeads = parseInt(a.getAttribute('data-leads'), 10);
+            const bLeads = parseInt(b.getAttribute('data-leads'), 10);
+            const aViews = parseInt(a.getAttribute('data-views'), 10);
+            const bViews = parseInt(b.getAttribute('data-views'), 10);
+            const aPlan = parseInt(a.getAttribute('data-plan'), 10);
+            const bPlan = parseInt(b.getAttribute('data-plan'), 10);
+            const aName = a.getAttribute('data-name');
+            const bName = b.getAttribute('data-name');
+
+            if (method === 'leads_desc') {
+                if (bLeads !== aLeads) return bLeads - aLeads;
+                return aName.localeCompare(bName);
+            } else if (method === 'views_desc') {
+                if (bViews !== aViews) return bViews - aViews;
+                return aName.localeCompare(bName);
+            } else if (method === 'plan_desc') {
+                if (aPlan !== bPlan) return aPlan - bPlan; // 1 is elite, so aPlan - bPlan (1-2 = -1 -> a comes first)
+                return aName.localeCompare(bName);
+            } else {
+                // name_asc
+                return aName.localeCompare(bName);
+            }
+        });
+    }
+</script>

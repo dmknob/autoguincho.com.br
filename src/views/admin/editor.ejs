@@ -123,20 +123,19 @@
               <div class="mt-2 sm:col-span-2 sm:mt-0">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <% categories.forEach(cat=> { %>
-                    <div class="relative flex items-start">
-                      <div class="flex h-6 items-center">
+                    <label for="cat-<%= cat.id %>" class="relative flex items-start cursor-pointer border border-gray-200 rounded-lg p-3 hover:bg-gray-50 transition-colors">
+                      <div class="flex h-6 items-center pt-1">
                         <input id="cat-<%= cat.id %>" name="category_ids" value="<%= cat.id %>" type="checkbox"
                           <%=selectedCategoryIds.includes(cat.id) ? 'checked' : '' %>
-                        class="h-4 w-4 rounded border-gray-300 text-gray-900 focus:ring-gray-900">
+                        class="h-5 w-5 cursor-pointer rounded border-gray-300 text-gray-900 focus:ring-gray-900">
                       </div>
-                      <div class="ml-3 text-sm leading-6">
-                        <label for="cat-<%= cat.id %>" class="font-medium text-gray-900">
+                      <div class="ml-3 flex-1 flex flex-col justify-center">
+                        <span class="font-bold text-gray-900 text-sm">
                           <%= cat.name %>
-                        </label>
-                        <p class="text-gray-500 text-xs">Ativa silo em /<%= cat.slug %>
-                        </p>
+                        </span>
+                        <span class="text-gray-500 text-xs mt-0.5">Silo seo: /<%= cat.slug %></span>
                       </div>
-                    </div>
+                    </label>
                     <% }) %>
                 </div>
                 <p class="mt-2 text-xs text-gray-500 italic">*Selecione ao menos uma categoria para o parceiro aparecer
@@ -225,16 +224,25 @@
   </div>
 </div>
 
-<div class="pt-5">
+<!-- Barra de Ações Sticky (Apenas Mobile) -->
+<div class="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 p-4 shadow-[0_-4px_10px_rgba(0,0,0,0.05)] flex gap-3 sm:hidden">
+    <a href="/admin" class="flex-1 flex justify-center items-center rounded-lg bg-white px-3 py-3.5 text-sm font-bold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">Cancelar</a>
+    <button type="submit" class="flex-1 flex justify-center items-center rounded-lg bg-gray-900 px-3 py-3.5 text-sm font-bold text-white shadow-sm hover:bg-gray-700">Salvar Dados</button>
+</div>
+
+<!-- Barra de Ações Original (Apenas Desktop) -->
+<div class="pt-5 hidden sm:block">
   <div class="flex justify-end gap-x-3">
     <a href="/admin"
-      class="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">Cancelar</a>
+      class="rounded-md bg-white px-4 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">Cancelar</a>
     <button type="submit"
-      class="inline-flex justify-center rounded-md bg-gray-900 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-700">Salvar
+      class="inline-flex justify-center rounded-md bg-gray-900 px-8 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-700">Salvar
       Dados</button>
   </div>
 </div>
 </form>
+<!-- Padding final extra no mobile para não sobrepor o footer sticky -->
+<div class="h-24 sm:hidden"></div>
 </div>
 
 <script>
