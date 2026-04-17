@@ -62,7 +62,7 @@
                         me cadastrar</a>
                 </div>
                 <% } else { %>
-                    <div class="flex flex-wrap gap-6" id="cards-container">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" id="cards-container">
                         <% listings.forEach(function(l) { %>
                             <% let tierWeight=3; if(l.plan_level==='elite' ) tierWeight=1; if(l.plan_level==='partner' )
                                 tierWeight=2; %>
@@ -93,7 +93,7 @@
                                                             </span>
                                                         <% }); %>
                                                         <% if(partnerBadges.length > 3) { %>
-                                                            <span class="text-[10px] text-gray-500 font-bold px-1 py-0.5">+<%= partnerBadges.length - 3 %></span>
+                                                            <span class="text-[10px] text-[#a09080] font-bold px-1 py-0.5">+<%= partnerBadges.length - 3 %></span>
                                                         <% } %>
                                                     </div>
                                                 <% } %>
