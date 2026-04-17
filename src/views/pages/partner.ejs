@@ -97,7 +97,7 @@
                     <!-- Serviços Prestados Section -->
                     <% if (locals.servedCategories && servedCategories.length > 0) { %>
                         <div class="mt-6">
-                            <h2 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3">Serviços Prestados</h2>
+                            <h2 class="text-xs font-bold text-[#a09080] uppercase tracking-widest mb-3">Serviços Prestados</h2>
                             <div class="flex flex-wrap gap-2">
                                 <% servedCategories.forEach(cat => { %>
                                     <a href="<%= BASE_URL %>/<%= cat.slug %>" class="px-3 py-1 bg-white/5 border border-gold/30 rounded-full text-xs font-bold text-ivory hover:bg-gold/10 hover:border-gold transition">
@@ -111,7 +111,7 @@
                     <!-- Cidades Atendidas Section -->
                     <% if (locals.servedCities && servedCities.length > 0) { %>
                         <div class="mt-6">
-                            <h2 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3">Cidades de Atuação</h2>
+                            <h2 class="text-xs font-bold text-[#a09080] uppercase tracking-widest mb-3">Cidades de Atuação</h2>
                             <div class="flex flex-wrap gap-2">
                                 <% servedCities.slice(0, 20).forEach(city => { %>
                                     <a href="<%= BASE_URL %>/<%- (locals.servedCategories && servedCategories[0]) ? servedCategories[0].slug : 'guincho-plataforma' %>/<%= city.state_uf.toLowerCase() %>/<%= city.slug %>" class="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-xs text-gray-400 hover:border-gold/50 hover:text-gold transition">
@@ -171,7 +171,7 @@
                         </div>
 
                         <!-- Disclaimer Jurídico -->
-                        <p class="text-xs text-gray-600 text-center mt-2">
+                        <p class="text-xs text-[#a09080] text-center mt-2">
                             O Auto Guincho é uma plataforma de divulgação. Não certificamos nem atestamos a idoneidade dos prestadores anunciados.
                         </p>
                     </div>
@@ -221,7 +221,7 @@
             <% if (visibleImages.length > 0) { %>
             <!-- Galeria de Fotos -->
             <div class="mt-8">
-                <h2 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4">Galeria de Fotos</h2>
+                <h2 class="text-xs font-bold text-[#a09080] uppercase tracking-widest mb-4">Galeria de Fotos</h2>
                 <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
                     <% visibleImages.forEach(function(imgUrl, idx) { %>
                         <div class="aspect-video bg-gray-900 rounded-xl overflow-hidden cursor-pointer group border border-gray-800 hover:border-gold/40 transition"
