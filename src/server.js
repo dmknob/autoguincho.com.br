@@ -1,5 +1,6 @@
 // src/server.js
 const express = require('express');
+const fs = require('fs');
 const path = require('path');
 const dotenv = require('dotenv');
 const expressLayouts = require('express-ejs-layouts');

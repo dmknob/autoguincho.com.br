@@ -5,8 +5,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><%- typeof title !='undefined' ? title : 'Admin - Auto Guincho' %></title>
-  <!-- Tailwind via CDN para Admin -->
-  <link rel="stylesheet" href="/css/output.css">
+  <!-- Tailwind CSS -->
+  <% if (locals.inlineCSS) { %>
+    <style><%- inlineCSS %></style>
+  <% } else { %>
+    <link rel="stylesheet" href="/css/output.css" fetchpriority="high">
+  <% } %>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.css">
 </head>
 
