@@ -1,50 +1,55 @@
 <!DOCTYPE html>
 <html lang="pt-BR" class="h-full bg-gray-50">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%- typeof title != 'undefined' ? title : 'Admin - Auto Guincho' %></title>
-    <!-- Tailwind via CDN para Admin -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%- typeof title !='undefined' ? title : 'Admin - Auto Guincho' %></title>
+  <!-- Tailwind via CDN para Admin -->
+  <link rel="stylesheet" href="/css/output.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.css">
 </head>
+
 <body class="h-full">
-    <div class="min-h-full">
-      <nav class="bg-gray-800">
-        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div class="flex h-16 items-center justify-between">
-            <div class="flex items-center">
-              <div class="flex-shrink-0 text-white font-bold text-xl">
-                ⚙️ Admin V2
-              </div>
-              <div class="hidden md:block">
-                <div class="ml-10 flex items-baseline space-x-4">
-                  <a href="/admin" class="bg-gray-900 text-white rounded-md px-3 py-2 text-sm font-medium">Painel</a>
-                  <form action="/admin/action/rebuild" method="POST" class="inline">
-                    <button type="submit" class="text-gray-300 hover:bg-yellow-600 hover:text-white rounded-md px-3 py-2 text-sm font-medium inline-flex items-center gap-2">
-                        🔁 Rebuild Completo Nginx
-                    </button>
-                  </form>
-                </div>
-              </div>
+  <div class="min-h-full">
+    <nav class="bg-gray-800">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="flex h-16 items-center justify-between">
+          <div class="flex items-center">
+            <div class="flex-shrink-0 text-white font-bold text-xl">
+              ⚙️ Admin V2
             </div>
             <div class="hidden md:block">
-              <div class="ml-4 flex items-center md:ml-6">
-                <!-- Profile dropdown -->
-                <a href="/admin/logout" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Sair</a>
+              <div class="ml-10 flex items-baseline space-x-4">
+                <a href="/admin" class="bg-gray-900 text-white rounded-md px-3 py-2 text-sm font-medium">Painel</a>
+                <form action="/admin/action/rebuild" method="POST" class="inline">
+                  <button type="submit"
+                    class="text-gray-300 hover:bg-yellow-600 hover:text-white rounded-md px-3 py-2 text-sm font-medium inline-flex items-center gap-2">
+                    🔁 Rebuild Completo Nginx
+                  </button>
+                </form>
               </div>
             </div>
           </div>
+          <div class="hidden md:block">
+            <div class="ml-4 flex items-center md:ml-6">
+              <!-- Profile dropdown -->
+              <a href="/admin/logout"
+                class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Sair</a>
+            </div>
+          </div>
         </div>
-      </nav>
-    
-      <main>
-        <div class="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">
-            <%- body %>
-        </div>
-      </main>
-    </div>
-    
-    <script src="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.js"></script>
+      </div>
+    </nav>
+
+    <main>
+      <div class="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">
+        <%- body %>
+      </div>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.js"></script>
 </body>
+
 </html>

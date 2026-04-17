@@ -6,3 +6,4 @@ docs/
 node_modules/
 media/
 /public/
+.agent/

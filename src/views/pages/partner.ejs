@@ -47,7 +47,7 @@
                         style="background-image: radial-gradient(#d4af37 1px, transparent 1px); background-size: 16px 16px;">
                     </div>
                     <% if (partner.logo_url) { %>
-                        <img src="<%= partner.logo_url %>" alt="Logotipo <%= partner.company_name %>" class="relative z-10 max-h-full max-w-full object-contain filter drop-shadow-lg">
+                        <img src="<%= partner.logo_url %>" alt="Logotipo <%= partner.company_name %>" class="relative z-10 max-h-full max-w-full object-contain filter drop-shadow-lg" fetchpriority="high" loading="eager">
                     <% } else { %>
                         <div class="relative z-10 text-gold/30 text-5xl font-black uppercase tracking-tighter">
                             <%= partner.company_name.split(' ').map(n => n[0]).join('').slice(0,3) %>
@@ -184,17 +184,17 @@
                     %>
                         <div class="mt-6 flex justify-center gap-4 border-t border-gray-800 pt-6">
                             <% if (socials.instagram) { %>
-                                <a href="<%= socials.instagram %>" target="_blank" class="text-gray-400 hover:text-gold transition flex items-center gap-1 text-sm font-medium">
+                                <a href="<%= socials.instagram %>" target="_blank" class="px-5 py-2 border border-gray-700 rounded-full text-gray-300 bg-gray-800 hover:bg-gold hover:text-black hover:border-gold transition font-bold text-sm tracking-wide flex items-center gap-2 shadow-sm">
                                     Instagram
                                 </a>
                             <% } %>
                             <% if (socials.facebook) { %>
-                                <a href="<%= socials.facebook %>" target="_blank" class="text-gray-400 hover:text-gold transition flex items-center gap-1 text-sm font-medium">
+                                <a href="<%= socials.facebook %>" target="_blank" class="px-5 py-2 border border-gray-700 rounded-full text-gray-300 bg-gray-800 hover:bg-gold hover:text-black hover:border-gold transition font-bold text-sm tracking-wide flex items-center gap-2 shadow-sm">
                                     Facebook
                                 </a>
                             <% } %>
                             <% if (socials.website) { %>
-                                <a href="<%= socials.website %>" target="_blank" class="text-gray-400 hover:text-gold transition flex items-center gap-1 text-sm font-medium">
+                                <a href="<%= socials.website %>" target="_blank" class="px-5 py-2 border border-gray-700 rounded-full text-gray-300 bg-gray-800 hover:bg-gold hover:text-black hover:border-gold transition font-bold text-sm tracking-wide flex items-center gap-2 shadow-sm">
                                     Website
                                 </a>
                             <% } %>
