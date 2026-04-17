@@ -218,9 +218,7 @@
 
   <div class="mt-2">
     <label class="block text-sm font-medium leading-6 text-gray-900 mb-2">Descrição Markdown</label>
-    <textarea id="description_markdown" name="description_markdown" class="invisible">
-                <%= typeof partner !== 'undefined' && partner.description_markdown ? partner.description_markdown : '' %>
-            </textarea>
+    <textarea id="description_markdown" name="description_markdown"><%= typeof partner !== 'undefined' && partner.description_markdown ? partner.description_markdown : '' %></textarea>
   </div>
 </div>
 
@@ -253,6 +251,11 @@
       spellChecker: false,
       autosave: { enabled: true, uniqueId: "ag_v2_partner_autosave" },
       toolbar: ["bold", "italic", "heading", "|", "quote", "unordered-list", "ordered-list", "|", "link", "preview", "side-by-side", "fullscreen"]
+    });
+
+    // Forçar sync do EasyMDE no disparo form submit (resolve falha de salvar nulo)
+    document.querySelector('form').addEventListener('submit', function() {
+        document.getElementById('description_markdown').value = easymde.value();
     });
 
     // Gestão de Cidades (Autocomplete)
