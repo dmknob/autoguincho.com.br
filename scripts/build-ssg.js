@@ -24,6 +24,14 @@ if (!fs.existsSync(publicDir)) {
     fs.mkdirSync(publicDir, { recursive: true });
 }
 
+// 1.1 Carregamento do CSS para Inlining (Performance)
+let inlineCSS = "";
+const cssPath = path.join(srcPublicDir, 'css/output.css');
+if (fs.existsSync(cssPath)) {
+    console.log('-> Lendo CSS para inlining...');
+    inlineCSS = fs.readFileSync(cssPath, 'utf8');
+}
+
 // Função utilitária para copiar diretórios recursivamente
 function copyDirSync(src, dest) {
     if (!fs.existsSync(src)) return;
@@ -66,6 +74,7 @@ async function buildHome() {
             BASE_URL,
             GTAG_ID,
             allCategories,
+            inlineCSS,
             path: ''
         });
         fs.writeFileSync(path.join(publicDir, 'index.html'), html);
@@ -135,6 +144,7 @@ async function buildDirtyCities() {
                     GTAG_ID,
                     WHATSAPP_CONTACT,
                     allCategories,
+                    inlineCSS,
                     path: pathRelative,
                     title: `${cat.name} em ${city.name} - ${city.state_uf.toUpperCase()} | Auto Guincho 24h`,
                     description: `Procurando ${cat.name} em ${city.name}? Acesse agora e fale direto com os melhores motoristas cadastrados na região de ${city.name} - ${city.state_uf.toUpperCase()}.`
@@ -192,6 +202,7 @@ async function buildAllProfiles() {
                 WHATSAPP_CONTACT,
                 plans,
                 allCategories,
+                inlineCSS,
                 path: pathRelative,
                 title: `${partner.company_name} | Perfil Profissional - Auto Guincho`,
                 description: `Veja detalhes de ${partner.company_name}. Localização, serviços e contato direto via WhatsApp no ecossistema Auto Guincho.`
@@ -240,6 +251,7 @@ async function buildCategories() {
                 BASE_URL,
                 GTAG_ID,
                 allCategories,
+                inlineCSS,
                 path: pathRelative,
                 title: `${cat.name} | Socorro Profissional - Auto Guincho`,
                 description: `Encontre os melhores profissionais de ${cat.name} atendendo em diversas cidades. Veja a lista completa e fale direto com o prestador.`
@@ -266,7 +278,8 @@ async function buildPlansPage() {
             WHATSAPP_CONTACT,
             path: '/seja-parceiro',
             title: 'Seja um Parceiro - Planos e Gestão | Auto Guincho',
-            allCategories
+            allCategories,
+            inlineCSS
         });
         fs.writeFileSync(path.join(plansDir, 'index.html'), html);
         console.log('✅ Página de planos gerada.');
@@ -306,7 +319,8 @@ async function buildLegalPages() {
                 WHATSAPP_CONTACT,
                 path: page.path,
                 title: page.title,
-                allCategories
+                allCategories,
+                inlineCSS
             });
             fs.writeFileSync(path.join(outDir, 'index.html'), html);
             console.log(`✅ ${page.label} gerada.`);

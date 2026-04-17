@@ -13,7 +13,7 @@
     "db:import-locations": "node scripts/import-locations.js",
     "db:mark-dirty": "node scripts/mark-dirty.js",
     "build:full": "node scripts/rebuild-full.js",
-    "build:css": "npx @tailwindcss/cli -i ./input.css -o ./src/public/css/output.css",
+    "build:css": "npx @tailwindcss/cli -i ./input.css -o ./src/public/css/output.css --optimize",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

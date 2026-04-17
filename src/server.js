@@ -13,6 +13,17 @@ const adminRoutes = require('./routes/admin');
 
 dotenv.config();
 
+// 0. Cache de CSS Inline para Performance (SSR fallback)
+let inlineCSS = "";
+try {
+    const cssPath = path.join(__dirname, 'public/css/output.css');
+    if (fs.existsSync(cssPath)) {
+        inlineCSS = fs.readFileSync(cssPath, 'utf8');
+    }
+} catch (e) {
+    console.error("Aviso: Não foi possível ler o CSS para inlining.");
+}
+
 const app = express();
 const PORT = process.env.PORT || 3001;
 
@@ -52,6 +63,7 @@ app.use((req, res, next) => {
     res.locals.BASE_URL = process.env.BASE_URL || `http://localhost:${process.env.PORT || 3001}`;
     res.locals.path = req.path;
     res.locals.GTAG_ID = process.env.GTAG_ID;
+    res.locals.inlineCSS = inlineCSS;
     next();
 });
 
