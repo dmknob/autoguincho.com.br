@@ -5,20 +5,26 @@ const path = require('path');
 // Mapeamento de Categorias Mestra (Excel) para Slugs Amigáveis (SEO/Frontend)
 const CATEGORY_SLUG_MAP = {
     'Guincho Plataforma': 'guincho-plataforma',
-    'Mecanica Diesel': 'mecanica-diesel',
-    'Auto Elétrica': 'auto-eletrica',
-    'Fábrica de Guindaste Articulado - Munck': 'fabrica-de-guindaste-articulado-munck',
-    'Caminhão Guindaste Articulado - Munck': 'caminhao-guindaste-articulado-munck',
+    'Guincho Pesado': 'guincho-pesado',
     'Guincho Moto': 'guincho-moto',
-    'Acessórios e Implementos': 'acessorios-e-implementos',
-    'Mecânica Automotiva': 'mecanica-rapida', // Mantido para SEO histórico
-    'Auto Peças': 'auto-pecas',
-    'Guincho Pesado - Caminhão': 'guincho-pesado-caminhao',
     'Borracharia': 'borracharia',
-    'Retificadora': 'retificadora',
+    'Auto Elétrica': 'auto-eletrica',
+    'Mecânica Automotiva': 'mecanica-automotiva',
+    'Mecanica Diesel': 'mecanica-diesel',
+    'Chaveiro Automotivo': 'chaveiro-automotivo',
+    'Auto Peças': 'auto-pecas',
+    'Auto-Vidros': 'auto-vidros',
+    'Escapamentos e Surdinas': 'escapamentos-e-surdinas',
+    'Radiadores e Arrefecimento': 'radiadores-e-arrefecimento',
+    'Ar Condicionado Automotivo': 'ar-condicionado-automotivo',
+    'Caminhão Guindaste - Munck': 'caminhao-munck',
+    'Fábrica de Caminhão Plataforma': 'implementos-plataforma',
+    'Implementos Munck': 'implementos-munck',
+    'Acessórios e Implementos': 'acessorios-e-implementos',
+    'Despachante Documental': 'despachante-documental',
     'Moto Peças': 'moto-pecas',
-    'Chaveiro Automotivo': 'chaveiro-24h' // Adaptado do original ('Chaveiro') para manter SEO
-};
+    'Retificadora': 'retificadora'
+};;
 
 console.log('🧹 Limpando dados atuais...');
 db.prepare('DELETE FROM listings').run();
@@ -49,7 +55,7 @@ function parseCSV(text) {
 
     for (let i = 0; i < text.length; i++) {
         let char = text[i];
-        
+
         if (inQuotes) {
             if (char === '"') {
                 if (i + 1 < text.length && text[i + 1] === '"') {
@@ -84,7 +90,7 @@ function parseCSV(text) {
     return rows;
 }
 
-const csvPath = path.join(__dirname, '../data/parceiros_1277.csv');
+const csvPath = path.join(__dirname, '../data/parceiros.csv');
 const data = fs.readFileSync(csvPath, 'utf-8');
 const rows = parseCSV(data);
 
@@ -122,16 +128,16 @@ db.transaction(() => {
             : slugify(nome) + '-' + count;
 
         let whatsapp = (parts.length > 7 && parts[7]) ? parts[7].replace(/[^\d]/g, '') : '';
-        
+
         let textoPadrao = (parts.length > 9 && parts[9]) ? parts[9].trim() : '';
-        
+
         let selosCsv = (parts.length > 11 && parts[11]) ? parts[11] : '';
         let badgesArray = selosCsv ? selosCsv.split(',').map(s => s.trim()).filter(Boolean) : [];
         let is_whatsapp_verified = badgesArray.includes('Whats Validado') ? 1 : 0;
-        
+
         // Remove 'Whats Validado' do array badges visual já que temos a flag, 
         // ou deixa manter. Vamos manter no array para visual se necessário.
-        
+
         let cidadesAtendidasStr = (parts.length > 12 && parts[12]) ? parts[12] : '';
 
         // Formatação de plano
@@ -164,9 +170,9 @@ db.transaction(() => {
 
         try {
             const badgesJson = badgesArray.length > 0 ? JSON.stringify(badgesArray) : null;
-            
+
             const result = insertListing.run(
-                nome, slug, plano, whatsapp, is_whatsapp_verified, 
+                nome, slug, plano, whatsapp, is_whatsapp_verified,
                 call_number, markdown, badgesJson, cityRow.ibge_id
             );
             const listingId = result.lastInsertRowid;
@@ -183,17 +189,17 @@ db.transaction(() => {
                 for (let c of arrCidades) {
                     let cName = c;
                     let cUf = baseUf; // Default for UF is the base uf
-                    
+
                     // Trata string no formato "Cidade/UF" ou "Cidade-UF" (ex: Porto Alegre/RS)
                     if (c.includes('/')) {
                         const splitted = c.split('/');
                         cName = splitted[0].trim();
                         cUf = splitted[1].trim().toUpperCase();
                     }
-                    
+
                     const cSlug = slugify(cName);
                     const cRowLocal = getCity.get(cSlug, cUf);
-                    
+
                     if (cRowLocal) {
                         insertServiceCity.run(listingId, cRowLocal.ibge_id);
                         setCityDirty.run(cRowLocal.ibge_id);

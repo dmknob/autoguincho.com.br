@@ -56,6 +56,7 @@ app.use(express.json());
 app.use(expressLayouts);
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
+app.set('view cache', process.env.NODE_ENV === 'production');
 app.set('layout', 'layouts/admin-layout'); // Layout padrão será o do admin
 
 // Middleware Global: Injeta categorias e dados do site em todas as rotas (DEV Fallback)
@@ -241,6 +242,11 @@ if (process.env.NODE_ENV !== 'production') {
         });
     });
 
+    // [LEGADO] Redirecionamento 301 Permanente (SEO)
+    app.get('/quero-ser-parceiro', (req, res) => {
+        res.redirect(301, '/seja-parceiro');
+    });
+
     // Rota: Termos de Uso
     app.get('/termos-de-uso', (req, res) => {
         res.render('pages/termos-de-uso', {
@@ -343,6 +349,16 @@ if (process.env.NODE_ENV !== 'production') {
             path: `/${catSlug}`,
             title: `${category.name} | Socorro Profissional - Auto Guincho`
         });
+    });
+
+    // [LEGADO] Mapeamento UF/Cidade (fallback para categoria principal)
+    app.get('/:uf/:citySlug', (req, res, next) => {
+        const { uf, citySlug } = req.params;
+        // Ex: /rs/porto-alegre -> /guincho-plataforma/rs/porto-alegre
+        if (uf.length === 2 && !uf.includes('.')) {
+            return res.redirect(301, `/guincho-plataforma/${uf.toLowerCase()}/${citySlug.toLowerCase()}`);
+        }
+        next();
     });
 
     // Rota para Cidades (Nível 2) - Ex: /mecanica-rapida/rs/novo-hamburgo
