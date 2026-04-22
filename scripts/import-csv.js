@@ -5,26 +5,26 @@ const path = require('path');
 // Mapeamento de Categorias Mestra (Excel) para Slugs Amigáveis (SEO/Frontend)
 const CATEGORY_SLUG_MAP = {
     'Guincho Plataforma': 'guincho-plataforma',
-    'Guincho Pesado': 'guincho-pesado',
+    'Guincho Pesado - Caminhão': 'guincho-pesado',
     'Guincho Moto': 'guincho-moto',
     'Borracharia': 'borracharia',
     'Auto Elétrica': 'auto-eletrica',
     'Mecânica Automotiva': 'mecanica-automotiva',
-    'Mecanica Diesel': 'mecanica-diesel',
+    'Mecânica Diesel': 'mecanica-diesel',
     'Chaveiro Automotivo': 'chaveiro-automotivo',
     'Auto Peças': 'auto-pecas',
     'Auto-Vidros': 'auto-vidros',
     'Escapamentos e Surdinas': 'escapamentos-e-surdinas',
     'Radiadores e Arrefecimento': 'radiadores-e-arrefecimento',
     'Ar Condicionado Automotivo': 'ar-condicionado-automotivo',
-    'Caminhão Guindaste - Munck': 'caminhao-munck',
+    'Caminhão Guindaste Articulado - Munck': 'caminhao-munck',
     'Fábrica de Caminhão Plataforma': 'implementos-plataforma',
-    'Implementos Munck': 'implementos-munck',
+    'Fábrica de Guindaste Articulado - Munck': 'implementos-munck',
     'Acessórios e Implementos': 'acessorios-e-implementos',
     'Despachante Documental': 'despachante-documental',
     'Moto Peças': 'moto-pecas',
     'Retificadora': 'retificadora'
-};;
+};;;
 
 console.log('🧹 Limpando dados atuais...');
 db.prepare('DELETE FROM listings').run();
@@ -97,11 +97,11 @@ const rows = parseCSV(data);
 const insertListing = db.prepare(`
     INSERT INTO listings (
         company_name, slug, plan_level, whatsapp_number, is_whatsapp_verified, 
-        call_number, description_markdown, badges, base_city_ibge_id, is_dirty
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
+        call_number, description_markdown, badges, social_links, maps_link, base_city_ibge_id, is_dirty
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
 `);
 const insertCat = db.prepare('INSERT OR IGNORE INTO categories (name, slug) VALUES (?, ?)');
-const insertCatList = db.prepare('INSERT INTO category_listings (listing_id, category_id) VALUES (?, ?)');
+const insertCatList = db.prepare('INSERT OR IGNORE INTO category_listings (listing_id, category_id) VALUES (?, ?)');
 const insertServiceCity = db.prepare('INSERT OR IGNORE INTO listing_service_cities (listing_id, city_ibge_id) VALUES (?, ?)');
 const getCat = db.prepare('SELECT id FROM categories WHERE slug = ?');
 const getCity = db.prepare('SELECT ibge_id FROM cities WHERE slug = ? AND state_uf = ?');
@@ -120,7 +120,7 @@ db.transaction(() => {
         const baseUf = parts[2]?.trim().toUpperCase();
 
         let call_number = parts[3] ? parts[3].replace(/[^\d]/g, '') : '';
-        const categoria = parts[4]?.trim();
+        const categoriaPrincipal = parts[4]?.trim();
         let planoCsv = parts[5] ? parts[5].toLowerCase() : 'basic';
 
         let slug = (parts.length > 6 && parts[6] && parts[6].trim() !== '')
@@ -135,10 +135,20 @@ db.transaction(() => {
         let badgesArray = selosCsv ? selosCsv.split(',').map(s => s.trim()).filter(Boolean) : [];
         let is_whatsapp_verified = badgesArray.includes('Whats Validado') ? 1 : 0;
 
-        // Remove 'Whats Validado' do array badges visual já que temos a flag, 
-        // ou deixa manter. Vamos manter no array para visual se necessário.
-
         let cidadesAtendidasStr = (parts.length > 12 && parts[12]) ? parts[12] : '';
+        let todosServicosStr = (parts.length > 13 && parts[13]) ? parts[13] : '';
+        let linkMaps = (parts.length > 14 && parts[14]) ? parts[14].trim() : null;
+
+        // Social Links
+        let instagram = (parts.length > 15 && parts[15]) ? parts[15].trim() : '';
+        let facebook = (parts.length > 16 && parts[16]) ? parts[16].trim() : '';
+        let website = (parts.length > 17 && parts[17]) ? parts[17].trim() : '';
+
+        let socialLinks = {};
+        if (instagram) socialLinks.instagram = instagram;
+        if (facebook) socialLinks.facebook = facebook;
+        if (website) socialLinks.website = website;
+        const socialLinksJson = Object.keys(socialLinks).length > 0 ? JSON.stringify(socialLinks) : null;
 
         // Formatação de plano
         let plano = 'basic';
@@ -161,23 +171,37 @@ db.transaction(() => {
             continue;
         }
 
-        let catSlug = CATEGORY_SLUG_MAP[categoria] || slugify(categoria);
-        insertCat.run(categoria, catSlug);
-        const catRow = getCat.get(catSlug);
-
         // Se o texto padrão não veio, usa string default como fallback
-        const markdown = textoPadrao || `# ${nome}\nBem-vindo ao perfil oficial na plataforma Auto Guincho. Profissional atuante na região de **${baseCidade} - ${baseUf}** prestando serviços de **${categoria}**.`;
+        const markdown = textoPadrao || `# ${nome}\nBem-vindo ao perfil oficial na plataforma Auto Guincho. Profissional atuante na região de **${baseCidade} - ${baseUf}** prestando serviços de **${categoriaPrincipal}**.`;
 
         try {
             const badgesJson = badgesArray.length > 0 ? JSON.stringify(badgesArray) : null;
 
             const result = insertListing.run(
                 nome, slug, plano, whatsapp, is_whatsapp_verified,
-                call_number, markdown, badgesJson, cityRow.ibge_id
+                call_number, markdown, badgesJson, socialLinksJson, linkMaps, cityRow.ibge_id
             );
             const listingId = result.lastInsertRowid;
 
-            insertCatList.run(listingId, catRow.id);
+            // Processar categorias (Principal + Todos Serviços)
+            const categoriasSet = new Set();
+            if (categoriaPrincipal) categoriasSet.add(categoriaPrincipal);
+
+            if (todosServicosStr) {
+                todosServicosStr.split(',').forEach(c => {
+                    const trimmed = c.trim();
+                    if (trimmed) categoriasSet.add(trimmed);
+                });
+            }
+
+            for (let catName of categoriasSet) {
+                let catSlug = CATEGORY_SLUG_MAP[catName] || slugify(catName);
+                insertCat.run(catName, catSlug);
+                const catRow = getCat.get(catSlug);
+                if (catRow) {
+                    insertCatList.run(listingId, catRow.id);
+                }
+            }
 
             // Adiciona cidade base nas cidades atendidas
             insertServiceCity.run(listingId, cityRow.ibge_id);
