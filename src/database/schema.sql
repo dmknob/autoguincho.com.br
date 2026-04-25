@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS listings (
   id INTEGER PRIMARY KEY AUTOINCREMENT, 
   company_name TEXT NOT NULL, 
   slug TEXT UNIQUE NOT NULL, -- Usado na Vanity URL /perfil/slug
-  plan_level TEXT DEFAULT 'basic', -- 'basic', 'partner', 'elite'
+  plan_level TEXT DEFAULT 'basic', -- 'basic', 'intermediate', 'elite'
   whatsapp_number TEXT,  
   is_whatsapp_verified BOOLEAN DEFAULT 0, -- Se está entre os badges
   call_number TEXT,
@@ -77,6 +77,11 @@ CREATE TABLE IF NOT EXISTS analytics_events (
     geo_country TEXT,                -- 'BR' 
     geo_region TEXT,                 -- 'RS'
     geo_city TEXT,                   -- 'Novo Hamburgo'
+    utm_source TEXT,                 -- UTM Source
+    utm_medium TEXT,                 -- UTM Medium
+    utm_campaign TEXT,               -- UTM Campaign
+    utm_content TEXT,                -- UTM Content
+    utm_term TEXT,                   -- UTM Term
     entity_type TEXT,                -- 'listing' | 'category' | 'city'
     entity_id INTEGER,               -- FK para a entidade
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP

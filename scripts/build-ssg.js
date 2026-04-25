@@ -122,7 +122,7 @@ async function buildDirtyCities() {
                 ORDER BY 
                     CASE l.plan_level 
                         WHEN 'elite' THEN 1 
-                        WHEN 'partner' THEN 2 
+                        WHEN 'intermediate' THEN 2 
                         ELSE 3 
                     END,
                     RANDOM()
@@ -188,6 +188,14 @@ async function buildAllProfiles() {
             WHERE lsc.listing_id = ?
         `).all(partner.id);
 
+        // Buscar categorias atendidas
+        const servedCategories = db.prepare(`
+            SELECT c.name, c.slug 
+            FROM categories c 
+            JOIN category_listings cl ON c.id = cl.category_id 
+            WHERE cl.listing_id = ?
+        `).all(partner.id);
+
         const pathRelative = `/perfil/${partner.slug}`;
         const perfilDir = path.join(publicDir, 'perfil', partner.slug);
         if (!fs.existsSync(perfilDir)) fs.mkdirSync(perfilDir, { recursive: true });
@@ -196,6 +204,7 @@ async function buildAllProfiles() {
             const htmlProfile = await ejs.renderFile(partnerTemplate, {
                 partner: partner,
                 servedCities: servedCities,
+                servedCategories: servedCategories,
                 html_text: html_text,
                 BASE_URL,
                 GTAG_ID,
@@ -330,10 +339,35 @@ async function buildLegalPages() {
     }
 }
 
+// 9. Geração de Dados Estáticos para Autocomplete (Resiliência)
+async function buildCitiesJson() {
+    console.log('-> Gerando cities.json para busca estática...');
+    try {
+        // Busca cidades que possuem pelo menos um parceiro ativo em qualquer categoria
+        const cities = db.prepare(`
+            SELECT DISTINCT c.name, c.slug, c.state_uf
+            FROM cities c
+            JOIN listing_service_cities lsc ON c.ibge_id = lsc.city_ibge_id
+            JOIN listings l ON lsc.listing_id = l.id
+            WHERE l.is_active = 1
+            ORDER BY c.name ASC
+        `).all();
+
+        const dataDir = path.join(publicDir, 'data');
+        if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
+
+        fs.writeFileSync(path.join(dataDir, 'cities.json'), JSON.stringify(cities));
+        console.log(`✅ cities.json gerado com ${cities.length} cidades.`);
+    } catch (e) {
+        console.error('❌ Erro ao gerar cities.json:', e);
+    }
+}
+
 // Execução Geral
 (async function run() {
     await copyAssets();
     await buildHome();
+    await buildCitiesJson(); // Sempre gera o JSON atualizado
     await buildCategories();
     await buildDirtyCities();
     await buildAllProfiles();

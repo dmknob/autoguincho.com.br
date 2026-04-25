@@ -109,17 +109,19 @@ const { processAnalytics } = require('./utils/analytics');
 async function trackPageView(req, res, next) {
     if (req.path.startsWith('/admin') ||
         req.path.startsWith('/api') ||
+        (req.session && req.session.isAdmin) ||
         req.path.match(/\.(css|js|ico|png|jpg|webp|woff2?)$/)) {
         return next();
     }
 
     try {
-        const { ip_hash, geo_country, geo_region, geo_city } = await processAnalytics(req);
-        
+        const { ip_hash, geo_country, geo_region, geo_city, ...utms } = await processAnalytics(req);
+
         db.prepare(`
             INSERT INTO analytics_events 
-            (event_type, page_path, referrer, ip_hash, user_agent, geo_country, geo_region, geo_city)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            (event_type, page_path, referrer, ip_hash, user_agent, geo_country, geo_region, geo_city,
+             utm_source, utm_medium, utm_campaign, utm_content, utm_term)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `).run(
             'page_view',
             req.path,
@@ -128,7 +130,12 @@ async function trackPageView(req, res, next) {
             req.get('user-agent') || null,
             geo_country,
             geo_region,
-            geo_city
+            geo_city,
+            utms.utm_source,
+            utms.utm_medium,
+            utms.utm_campaign,
+            utms.utm_content,
+            utms.utm_term
         );
     } catch (err) {
         console.error('[Analytics] Erro ao registrar page view:', err.message);
@@ -147,20 +154,25 @@ app.post('/api/system/interaction', async (req, res) => {
 
     if (!event_type || !page_path) return res.status(400).json({ error: 'Missing fields' });
 
+    // Ignorar eventos de admin
+    if (req.session && req.session.isAdmin) return res.status(204).end();
+
     try {
-        const { ip_hash, geo_country, geo_region, geo_city } = await processAnalytics(req);
+        const { ip_hash, geo_country, geo_region, geo_city, ...utms } = await processAnalytics(req);
 
         db.prepare(`
             INSERT INTO analytics_events 
             (event_type, event_label, page_path, ip_hash, user_agent, 
-             geo_country, geo_region, geo_city, entity_type, entity_id)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+             geo_country, geo_region, geo_city, utm_source, utm_medium, 
+             utm_campaign, utm_content, utm_term, entity_type, entity_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `).run(event_type, event_label, page_path, ip_hash,
-               req.get('user-agent'), geo_country, geo_region, geo_city,
-               entity_type || null, entity_id || null);
+            req.get('user-agent'), geo_country, geo_region, geo_city,
+            utms.utm_source, utms.utm_medium, utms.utm_campaign, utms.utm_content, utms.utm_term,
+            entity_type || null, entity_id || null);
 
         res.status(204).end();
-    } catch(err) {
+    } catch (err) {
         console.error('[Analytics] Erro ao registrar tracking de clique:', err.message);
         res.status(500).json({ error: 'Internal server error' });
     }
@@ -170,7 +182,7 @@ app.post('/api/system/interaction', async (req, res) => {
 // Resolve 100% das falhas de JavaScript local, AdBlockers e "Cancelamento de Aba" do Safari/Chrome
 app.get('/r/:type/:id', async (req, res) => {
     const { type, id } = req.params;
-    
+
     try {
         const listing = db.prepare('SELECT whatsapp_number, call_number FROM listings WHERE id = ?').get(id);
         if (!listing) return res.redirect('/');
@@ -190,26 +202,29 @@ app.get('/r/:type/:id', async (req, res) => {
 
         const userAgent = req.get('user-agent') || '';
         const isBot = /bot|crawler|spider|crawling|slurp/i.test(userAgent);
+        const isAdmin = req.session && req.session.isAdmin;
 
-        if (!isBot) {
-            const { ip_hash, geo_country, geo_region, geo_city } = await processAnalytics(req);
+        if (!isBot && !isAdmin) {
+            const { ip_hash, geo_country, geo_region, geo_city, ...utms } = await processAnalytics(req);
             // Salva a página de origem usando o cabeçalho HTTP Referer embutido nativamente no redirect
             const referrer = req.get('Referrer') || '/redirecionamento-direto';
-            
+
             db.prepare(`
                 INSERT INTO analytics_events 
                 (event_type, event_label, page_path, ip_hash, user_agent, 
-                 geo_country, geo_region, geo_city, entity_type, entity_id)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                 geo_country, geo_region, geo_city, utm_source, utm_medium, 
+                 utm_campaign, utm_content, utm_term, entity_type, entity_id)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             `).run('cta_click', eventLabel, referrer, ip_hash,
-                   userAgent, geo_country, geo_region, geo_city,
-                   'listing', id);
+                userAgent, geo_country, geo_region, geo_city,
+                utms.utm_source, utms.utm_medium, utms.utm_campaign, utms.utm_content, utms.utm_term,
+                'listing', id);
         }
 
         // Dispara o usuário pro destino final HTTP 302 Redirecionamento Temporário
         res.redirect(302, targetUrl);
 
-    } catch(err) {
+    } catch (err) {
         console.error('[Analytics Tracker] Erro crasso na Rota de Redirect Rápido:', err.message);
         res.redirect('/');
     }
@@ -219,7 +234,7 @@ app.get('/r/:type/:id', async (req, res) => {
 app.use('/admin', adminRoutes);
 
 // Constantes Globais para SEO/Analytics
-const BASE_URL = process.env.BASE_URL || `http://localhost:${PORT}`;
+const BASE_URL = process.env.BASE_URL;
 const GTAG_ID = process.env.GTAG_ID;
 
 // Servir o Frontend SSG gerado apenas em ambiente de DEV (Para testes locais)
@@ -381,7 +396,7 @@ if (process.env.NODE_ENV !== 'production') {
             ORDER BY 
                 CASE l.plan_level 
                     WHEN 'elite' THEN 1 
-                    WHEN 'partner' THEN 2 
+                    WHEN 'intermediate' THEN 2 
                     ELSE 3 
                 END,
                 RANDOM()

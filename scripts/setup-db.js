@@ -5,7 +5,7 @@ require('dotenv').config();
 async function setupDatabase() {
   console.log('🏗️  Iniciando configuração do banco de dados...');
 
-  const dbFile = process.env.DB_FILE || 'data/autoguincho_dev.db';
+  const dbFile = process.env.DB_FILE;
   const dbPath = path.join(__dirname, '../', dbFile);
 
   // Deletar banco atual e logs WAL para garantir limpeza total (Wipe)

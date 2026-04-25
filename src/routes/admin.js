@@ -22,6 +22,10 @@ router.post('/login', (req, res) => {
     if (password === adminPass) {
         console.log('[Admin] Login bem-sucedido.');
         req.session.isAdmin = true;
+        
+        // Cookie público para o frontend saber que é admin e não trackear (Analytics)
+        res.cookie('ag_admin', '1', { maxAge: 1000 * 60 * 60 * 24, httpOnly: false });
+        
         res.redirect('/admin');
     } else {
         console.warn(`[Admin] Falha de login. Tentativa com: "${password ? '********' : 'vazio'}"`);
@@ -31,7 +35,8 @@ router.post('/login', (req, res) => {
 
 router.get('/logout', (req, res) => {
     req.session.destroy();
-    res.redirect('/admin/login');
+    res.clearCookie('ag_admin');
+    res.redirect('/');
 });
 
 // --- DASHBOARD ---

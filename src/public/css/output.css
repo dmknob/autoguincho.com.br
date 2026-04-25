@@ -1354,6 +1354,16 @@
     }
   }
 
+  .bg-gold\/20 {
+    background-color: #c9a84c33;
+  }
+
+  @supports (color: color-mix(in lab, red, red)) {
+    .bg-gold\/20 {
+      background-color: color-mix(in oklab, var(--color-gold) 20%, transparent);
+    }
+  }
+
   .bg-gray-50 {
     background-color: var(--color-gray-50);
   }

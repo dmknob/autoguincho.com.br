@@ -27,6 +27,13 @@
     var _gtagLoaded = false;
     function loadGA() {
         if (_gtagLoaded) return;
+        
+        // Verifica se o usuário é admin via cookie público (para evitar ruído no analytics)
+        if (document.cookie.split(';').some((item) => item.trim().startsWith('ag_admin='))) {
+            console.log('[Analytics] Sessão admin detectada. GA bloqueado para evitar ruído.');
+            return;
+        }
+
         _gtagLoaded = true;
         window.dataLayer = window.dataLayer || [];
         function gtag() { dataLayer.push(arguments); }

@@ -108,12 +108,26 @@ const getCity = db.prepare('SELECT ibge_id FROM cities WHERE slug = ? AND state_
 const setCityDirty = db.prepare('UPDATE cities SET is_dirty = 1 WHERE ibge_id = ?');
 
 let count = 0;
+const errors = [];
+const logPath = path.join(__dirname, '../data/import-errors.log');
+
+function logError(msg) {
+    errors.push(msg);
+    console.log(msg);
+}
 
 db.transaction(() => {
     // Pula cabeçalho linha 0
     for (let i = 1; i < rows.length; i++) {
         const parts = rows[i];
-        if (parts.length < 6 || !parts[0]) continue;
+        const rowNum = i + 1;
+
+        if (parts.length < 6 || !parts[0]) {
+            if (parts.length > 0 && parts.some(p => p.trim() !== "")) {
+                logError(`⚠️ [Linha ${rowNum}] Linha ignorada por falta de colunas ou nome vazio.`);
+            }
+            continue;
+        }
 
         const nome = parts[0]?.trim();
         const baseCidade = parts[1]?.trim();
@@ -152,7 +166,7 @@ db.transaction(() => {
 
         // Formatação de plano
         let plano = 'basic';
-        if (planoCsv.includes('partner')) plano = 'partner';
+        if (planoCsv.includes('intermediate') || planoCsv.includes('partner')) plano = 'intermediate';
         if (planoCsv.includes('elite') || planoCsv.includes('c - elite')) plano = 'elite';
 
         // Garante que telefones tenham prefixo 55 se parecer telefone br local/nacional (>=10 digitos)
@@ -167,7 +181,7 @@ db.transaction(() => {
         const cityRow = getCity.get(citySlug, baseUf);
 
         if (!cityRow) {
-            console.log(`⚠️ Cidade base não encontrada no IBGE: ${baseCidade} - ${baseUf}. Ignorando parceiro ${nome}.`);
+            logError(`⚠️ [Linha ${rowNum}] Cidade base não encontrada no IBGE: "${baseCidade}" - "${baseUf}". Ignorando parceiro: ${nome}.`);
             continue;
         }
 
@@ -228,14 +242,14 @@ db.transaction(() => {
                         insertServiceCity.run(listingId, cRowLocal.ibge_id);
                         setCityDirty.run(cRowLocal.ibge_id);
                     } else {
-                        console.log(`⚠️ Cidade atendida não encontrada: ${cName} - ${cUf} (Referenciada por: ${nome}).`);
+                        logError(`⚠️ [Linha ${rowNum}] Cidade atendida não encontrada: "${cName}" - "${cUf}" (Referenciada por: ${nome}).`);
                     }
                 }
             }
 
             count++;
         } catch (e) {
-            console.log(`Erro inserindo ${nome}: ${e.message}`);
+            logError(`❌ [Linha ${rowNum}] Erro inserindo ${nome}: ${e.message}`);
         }
     }
 })();
@@ -246,5 +260,13 @@ db.transaction(() => {
         insertCat.run(name, slug);
     });
 })();
+
+// Salvar log de erros se houver
+if (errors.length > 0) {
+    fs.writeFileSync(logPath, `RELATÓRIO DE ERROS DE IMPORTAÇÃO - ${new Date().toLocaleString('pt-BR')}\n\n` + errors.join('\n'));
+    console.log(`\n📝 Foram encontrados ${errors.length} problemas. Verifique o log em: data/import-errors.log`);
+} else {
+    if (fs.existsSync(logPath)) fs.unlinkSync(logPath);
+}
 
 console.log(`✅ Base de parceiros importada! Total: ${count} parceiros ativos inseridos.`);
