@@ -262,6 +262,14 @@ if (process.env.NODE_ENV !== 'production') {
         res.redirect(301, '/seja-parceiro');
     });
 
+    app.get('/mecanica-rapida', (req, res) => {
+        res.redirect(301, '/mecanica-automotiva');
+    });
+
+    app.get('/chaveiro-24h', (req, res) => {
+        res.redirect(301, '/chaveiro-automotivo');
+    });
+
     // Rota: Termos de Uso
     app.get('/termos-de-uso', (req, res) => {
         res.render('pages/termos-de-uso', {
