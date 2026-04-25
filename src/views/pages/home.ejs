@@ -178,12 +178,9 @@
         const uf = selectedUf.value;
         const slug = selectedCitySlug.value;
         
-        if (!slug || !uf) {
-            status.textContent = "Por favor, selecione uma cidade na lista para prosseguir.";
-            status.classList.remove("hidden");
-            status.classList.add("text-red-400");
-            return;
-        }
+        // Determina o destino: Silo de Cidade ou Landing Page de Categoria
+        const targetPath = (slug && uf) ? `/${cat}/${uf}/${slug}` : `/${cat}`;
+        const entityType = (slug && uf) ? 'city' : 'category';
 
         // Registrar Evento de Pesquisa
         try {
@@ -192,9 +189,9 @@
                 headers: {'Content-Type': 'application/json'}, 
                 body: JSON.stringify({ 
                     event_type: 'search', 
-                    event_label: cityInput.value, 
-                    page_path: `/${cat}/${uf}/${slug}`, 
-                    entity_type: 'city' 
+                    event_label: cityInput.value || 'Geral', 
+                    page_path: targetPath, 
+                    entity_type: entityType 
                 }),
                 keepalive: true
             });
@@ -202,7 +199,7 @@
         
         // Roteador SSG Direto com delay microscópico para garantir disparo da request no Safari/Chrome
         setTimeout(() => {
-            window.location.href = `/${cat}/${uf}/${slug}`;
+            window.location.href = targetPath;
         }, 50);
     }
 </script>
