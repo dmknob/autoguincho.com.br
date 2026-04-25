@@ -47,7 +47,8 @@
                     <ul class="space-y-2">
                         <% groupedCities[state].sort((a,b) => a.name.localeCompare(b.name)).forEach(city => { %>
                             <li>
-                                <a href="/<%= category.slug %>/<%= state.toLowerCase() %>/<%= city.slug %>" class="text-gray-300 hover:text-white hover:translate-x-1 inline-block transition-all">
+                                <a href="/<%= category.slug %>/<%= state.toLowerCase() %>/<%= city.slug %>" 
+                                   class="<%= city.has_headquarters ? 'text-gold font-bold' : 'text-gray-300' %> hover:text-white hover:translate-x-1 inline-block transition-all">
                                     <%= city.name %>
                                 </a>
                             </li>

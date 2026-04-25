@@ -341,13 +341,18 @@ if (process.env.NODE_ENV !== 'production') {
 
         // Buscar cidades que possuem prestadores nesta categoria
         const cities = db.prepare(`
-            SELECT DISTINCT c.name, c.slug, c.state_uf
+            SELECT DISTINCT c.name, c.slug, c.state_uf,
+                (SELECT 1 FROM listings l2 
+                 JOIN category_listings cl2 ON l2.id = cl2.listing_id
+                 WHERE l2.base_city_ibge_id = c.ibge_id 
+                 AND cl2.category_id = ? 
+                 AND l2.is_active = 1 LIMIT 1) as has_headquarters
             FROM cities c
             JOIN listing_service_cities lsc ON c.ibge_id = lsc.city_ibge_id
             JOIN category_listings cl ON lsc.listing_id = cl.listing_id
             JOIN listings l ON l.id = cl.listing_id
             WHERE cl.category_id = ? AND l.is_active = 1
-        `).all(category.id);
+        `).all(category.id, category.id);
 
         const groupedCities = {};
         cities.forEach(city => {
