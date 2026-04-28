@@ -9,8 +9,9 @@ const session = require('express-session');
 const { marked } = require('marked');
 const db = require('./database');
 
-// Rotas
+// Rotas e Configs
 const adminRoutes = require('./routes/admin');
+const plans = require('./config/plans');
 
 dotenv.config();
 
@@ -104,6 +105,7 @@ app.get('/api/cities/search', (req, res) => {
 
 // Utils
 const { processAnalytics } = require('./utils/analytics');
+const { processPartnerImages } = require('./utils/imageDiscovery');
 
 // Middleware Analytics - Page Views (SSR Fallback Only)
 async function trackPageView(req, res, next) {
@@ -297,7 +299,7 @@ if (process.env.NODE_ENV !== 'production') {
     });
 
     // Rota para Perfis
-    app.get('/perfil/:slug', (req, res, next) => {
+    app.get('/perfil/:slug', async (req, res, next) => {
         const { slug } = req.params;
 
         // Ignorar requisições que pareçam arquivos estáticos
@@ -322,10 +324,24 @@ if (process.env.NODE_ENV !== 'production') {
             WHERE cl.listing_id = ?
         `).all(partner.id);
 
+        // --- Auto-Discovery de Imagens ---
+        // Lógica externalizada para utils/imageDiscovery.js para manter o princípio DRY
+        const { cover_url, logo_url, galleryImages, og_image_url } = await processPartnerImages(
+            partner, 
+            path.join(__dirname, '../public'), 
+            plans, 
+            BASE_URL
+        );
+
         const html_text = partner.description_markdown ? marked.parse(partner.description_markdown) : "";
         res.render('pages/partner', {
             layout: false,
             partner: partner,
+            plans: plans,
+            cover_url: cover_url,
+            logo_url: logo_url,
+            galleryImages: galleryImages,
+            og_image_url: og_image_url,
             servedCities: servedCities,
             servedCategories: servedCategories,
             html_text: html_text,

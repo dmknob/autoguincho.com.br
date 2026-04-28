@@ -20,7 +20,7 @@
         {
           "@type": "ProfessionalService",
           "name": "<%= partner.company_name %>",
-          "image": "<%= partner.logo_url || (BASE_URL + '/images/og-default.webp') %>",
+          "image": "<%= locals.og_image_url || (BASE_URL + '/images/og-default.webp') %>",
           "url": "<%= BASE_URL %><%= path %>",
           "telephone": "<%= partner.whatsapp_number %>",
           "priceRange": "$$",
@@ -29,6 +29,7 @@
       ]
     }
     </script>
+    <meta property="og:image" content="<%= locals.og_image_url || (BASE_URL + '/images/og-default.webp') %>">
 </head>
 
 <body class="bg-navy font-sans text-ivory min-h-screen flex flex-col">
@@ -42,12 +43,13 @@
                 class="bg-gray-900 border <%= partner.plan_level === 'elite' ? 'border-gold shadow-gold/20 shadow-xl' : 'border-gray-800' %> rounded-3xl overflow-hidden">
 
                 <!-- Placeholder Capa / Logo Area -->
-                <div class="h-28 bg-gray-800 relative w-full overflow-hidden flex items-center justify-center p-4">
-                    <div class="absolute inset-0 opacity-20"
-                        style="background-image: radial-gradient(#d4af37 1px, transparent 1px); background-size: 16px 16px;">
+                <div class="relative w-full overflow-hidden flex items-center justify-center p-4 <%= locals.cover_url ? 'h-32 md:h-48 bg-cover bg-center' : 'h-28 bg-gray-800' %>"
+                     <%- locals.cover_url ? `style="background-image: url('${locals.cover_url}');"` : '' %>>
+                    <div class="absolute inset-0 <%= locals.cover_url ? 'bg-black/50 backdrop-blur-[2px]' : 'opacity-20' %>"
+                        <%- !locals.cover_url ? `style="background-image: radial-gradient(#d4af37 1px, transparent 1px); background-size: 16px 16px;"` : '' %>>
                     </div>
-                    <% if (partner.logo_url) { %>
-                        <img src="<%= partner.logo_url %>" alt="Logotipo <%= partner.company_name %>" class="relative z-10 max-h-full max-w-full object-contain filter drop-shadow-lg" fetchpriority="high" loading="eager">
+                    <% if (locals.logo_url) { %>
+                        <img src="<%= locals.logo_url %>" alt="Logotipo <%= partner.company_name %>" class="relative z-10 max-h-full max-w-full object-contain filter drop-shadow-lg" fetchpriority="high" loading="eager">
                     <% } else { %>
                         <div class="relative z-10 text-gold/30 text-5xl font-black uppercase tracking-tighter">
                             <%= partner.company_name.split(' ').map(n => n[0]).join('').slice(0,3) %>
@@ -209,11 +211,8 @@
             </div>
 
             <%
-                let galleryImages = [];
-                try { galleryImages = JSON.parse(partner.gallery_images || '[]'); } catch(e) {}
-                const planConfig = plans[partner.plan_level] || plans.basic;
-                const allowedPhotos = planConfig.max_photos || 0;
-                const visibleImages = galleryImages.slice(0, allowedPhotos);
+                // A variável galleryImages já vem mesclada (DB+FileSystem) e com limite aplicado pelo controller SSR/SSG
+                const visibleImages = locals.galleryImages || [];
             %>
             <% if (visibleImages.length > 0) { %>
             <!-- Galeria de Fotos -->

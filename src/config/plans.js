@@ -21,7 +21,7 @@ module.exports = {
     },
     elite: {
         max_cities: 9999, // Ilimitado na prática
-        max_photos: 10,
+        max_photos: 12,
         requires_logo: true,
         show_social: true,
         show_maps: true,

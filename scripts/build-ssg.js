@@ -5,6 +5,7 @@ const ejs = require('ejs');
 const { marked } = require('marked');
 const db = require('../src/database');
 const plans = require('../src/config/plans');
+const { processPartnerImages } = require('../src/utils/imageDiscovery');
 
 // Configurações Globais (.env)
 const BASE_URL = process.env.BASE_URL || 'https://autoguincho.com.br';
@@ -200,11 +201,24 @@ async function buildAllProfiles() {
         const perfilDir = path.join(publicDir, 'perfil', partner.slug);
         if (!fs.existsSync(perfilDir)) fs.mkdirSync(perfilDir, { recursive: true });
 
+        // --- Auto-Discovery de Imagens ---
+        // Lógica externalizada para manter o princípio DRY
+        const { cover_url, logo_url, galleryImages, og_image_url } = await processPartnerImages(
+            partner, 
+            publicDir, 
+            plans, 
+            BASE_URL
+        );
+
         try {
             const htmlProfile = await ejs.renderFile(partnerTemplate, {
                 partner: partner,
                 servedCities: servedCities,
                 servedCategories: servedCategories,
+                cover_url: cover_url,
+                logo_url: logo_url,
+                galleryImages: galleryImages,
+                og_image_url: og_image_url,
                 html_text: html_text,
                 BASE_URL,
                 GTAG_ID,
